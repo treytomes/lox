@@ -1,0 +1,6 @@
+{
+	"dotnet.defaultSolution": "Lox.sln",
+	"cSpell.words": [
+		"xunit"
+	]
+}

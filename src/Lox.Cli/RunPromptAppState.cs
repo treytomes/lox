@@ -6,14 +6,22 @@ public class RunPromptAppState : IAppState
 {
 	#region Fields
 
+	private readonly IErrorReporter _errorReporter;
+	private readonly IInterpreter _interpreter;
 	private readonly ILogger<RunFileAppState> _logger;
 
 	#endregion
 
 	#region Constructors
 
-	public RunPromptAppState(ILogger<RunFileAppState> logger)
+	public RunPromptAppState(IErrorReporter errorReporter, IInterpreter interpreter, ILogger<RunFileAppState> logger)
 	{
+		if (errorReporter == null) throw new ArgumentNullException(nameof(errorReporter));
+		if (interpreter == null) throw new ArgumentNullException(nameof(interpreter));
+		if (logger == null) throw new ArgumentNullException(nameof(logger));
+
+		_errorReporter = errorReporter;
+		_interpreter = interpreter;
 		_logger = logger;
 	}
 
@@ -23,18 +31,17 @@ public class RunPromptAppState : IAppState
 
 	public async Task RunAsync()
 	{
-		await Task.Yield();
-
-		_logger.LogInformation("Running interpreter prompt.");
-
-		_logger.LogInformation("Not implemented yet.");
-	}
-
-	private async void RunFile(string path)
-	{
-		var text = await File.ReadAllTextAsync(path);
-
-		Console.WriteLine(text);
+		while (true)
+		{
+			Console.Write("> ");
+			var sourceText = Console.ReadLine();
+			if (sourceText == null)
+			{
+				break;
+			}
+			await _interpreter.RunAsync(new ImmediateExecutionSource(sourceText));
+			_errorReporter.ResetErrorFlag();
+		}
 	}
 
 	#endregion

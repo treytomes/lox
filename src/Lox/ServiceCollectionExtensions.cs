@@ -6,6 +6,8 @@ public static class ServiceCollectionExtensions
 {
 	public static IServiceCollection ConfigureLox(this IServiceCollection @this, string? filePath)
 	{
+		@this.AddSingleton<IErrorReporter, ConsoleErrorReporter>();
+
 		@this.AddTransient<IInterpreter, Interpreter>();
 		if (!string.IsNullOrWhiteSpace(filePath))
 		{

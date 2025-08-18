@@ -28,29 +28,20 @@ public class Scanner : IScanner
 	});
 
 	private readonly IErrorReporter _errorReporter;
-	private readonly string _source;
 	private readonly IList<Token> _tokens = new List<Token>();
-	private int _start = 0;
-	private int _current = 0;
-	private int _line = 0;
+	private readonly IScannerCursor _cursor;
 
 	#endregion
 
 	#region Constructors
 
-	public Scanner(IErrorReporter errorReporter, string source)
+	public Scanner(IScannerCursor cursor, IErrorReporter errorReporter)
 	{
 		if (errorReporter == null) throw new ArgumentNullException(nameof(errorReporter));
-		if (source == null) throw new ArgumentNullException(nameof(source));
+		if (cursor == null) throw new ArgumentNullException(nameof(cursor));
 		_errorReporter = errorReporter;
-		_source = source;
+		_cursor = cursor;
 	}
-
-	#endregion
-
-	#region Properties
-
-	private bool IsAtEnd => _current >= _source.Length;
 
 	#endregion
 
@@ -58,20 +49,21 @@ public class Scanner : IScanner
 
 	public IList<Token> ScanTokens(string source)
 	{
-		while (!IsAtEnd)
+		_cursor.ResetCursor(source);
+
+		while (!_cursor.IsAtEnd)
 		{
-			// We are at the beginning of the next lexeme.
-			_start = _current;
+			_cursor.BeginLexeme();
 			ScanToken();
 		}
 
-		_tokens.Add(new Token(TokenType.EOF, string.Empty, null, _line));
+		_tokens.Add(new Token(TokenType.EOF, string.Empty, null, _cursor.Line));
 		return _tokens;
 	}
 
 	private void ScanToken()
 	{
-		char c = Advance();
+		char c = _cursor.Advance();
 		switch (c)
 		{
 			case '(': AddToken(TokenType.LEFT_PAREN); break;
@@ -85,27 +77,27 @@ public class Scanner : IScanner
 			case ';': AddToken(TokenType.SEMICOLON); break;
 			case '*': AddToken(TokenType.STAR); break;
 			case '!':
-				AddToken(Match('=') ? TokenType.BANG_EQUAL : TokenType.BANG);
+				AddToken(_cursor.Match('=') ? TokenType.BANG_EQUAL : TokenType.BANG);
 				break;
 			case '=':
-				AddToken(Match('=') ? TokenType.EQUAL_EQUAL : TokenType.EQUAL);
+				AddToken(_cursor.Match('=') ? TokenType.EQUAL_EQUAL : TokenType.EQUAL);
 				break;
 			case '<':
-				AddToken(Match('=') ? TokenType.LESS_EQUAL : TokenType.LESS);
+				AddToken(_cursor.Match('=') ? TokenType.LESS_EQUAL : TokenType.LESS);
 				break;
 			case '>':
-				AddToken(Match('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER);
+				AddToken(_cursor.Match('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER);
 				break;
 			case '/':
-				if (Match('/'))
+				if (_cursor.Match('/'))
 				{
 					// A line comment goes until the end of the line.
-					while (Peek() != '\n' && !IsAtEnd) Advance();
+					while (_cursor.Peek() != '\n' && !_cursor.IsAtEnd) _cursor.Advance();
 				}
-				else if (Match('*'))
+				else if (_cursor.Match('*'))
 				{
 					// A block comment goes until the end of the block comment marker.
-					while (Peek() != '*' && PeekNext() != '/') Advance();
+					while (_cursor.Peek() != '*' && _cursor.PeekNext() != '/') _cursor.Advance();
 				}
 				else
 				{
@@ -120,7 +112,7 @@ public class Scanner : IScanner
 				break;
 
 			case '\n':
-				_line++;
+				_cursor.NewLine();
 				break;
 
 			case '"': String(); break;
@@ -136,15 +128,10 @@ public class Scanner : IScanner
 				}
 				else
 				{
-					_errorReporter.Error(_line, "Unexpected character.");
+					_errorReporter.Error(_cursor.Line, "Unexpected character.");
 				}
 				break;
 		}
-	}
-
-	private char Advance()
-	{
-		return _source[_current++];
 	}
 
 	private void AddToken(TokenType type)
@@ -154,58 +141,38 @@ public class Scanner : IScanner
 
 	private void AddToken(TokenType type, object? literal)
 	{
-		var text = _source.Substring(_start, _current - _start);
-		_tokens.Add(new Token(type, text, literal, _line));
-	}
-
-	private bool Match(char expected)
-	{
-		if (IsAtEnd) return false;
-		if (_source[_current] != expected) return false;
-
-		_current++;
-		return true;
-	}
-
-	private char Peek()
-	{
-		if (IsAtEnd) return '\0';
-		return _source[_current];
-	}
-
-	private char PeekNext()
-	{
-		if (_current + 1 >= _source.Length) return '\0';
-		return _source[_current + 1];
+		var text = _cursor.CurrentText;
+		_tokens.Add(new Token(type, text, literal, _cursor.Line));
 	}
 
 	private void String()
 	{
-		while (Peek() != '"' && !IsAtEnd)
+		while (_cursor.Peek() != '"' && !_cursor.IsAtEnd)
 		{
-			if (Peek() == '\n') _line++;
-			Advance();
+			if (_cursor.Peek() == '\n') _cursor.NewLine();
+			_cursor.Advance();
 		}
 
-		if (IsAtEnd)
+		if (_cursor.IsAtEnd)
 		{
-			_errorReporter.Error(_line, "Unterminated string.");
+			_errorReporter.Error(_cursor.Line, "Unterminated string.");
 			return;
 		}
 
 		// The closing ".
-		Advance();
+		_cursor.Advance();
 
 		// Trim the surrounding quotes.
-		var value = _source.Substring(_start + 1, _current - _start - 2);
+		var text = _cursor.CurrentText;
+		var value = text.Substring(1, text.Length - 2);
 		AddToken(TokenType.STRING, value);
 	}
 
 	private void Identifier()
 	{
-		while (IsAlphaNumeric(Peek())) Advance();
+		while (IsAlphaNumeric(_cursor.Peek())) _cursor.Advance();
 
-		var text = _source.Substring(_start, _current - _start);
+		var text = _cursor.CurrentText;
 		var type = _keywords.GetValueOrDefault(text, TokenType.IDENTIFIER);
 		AddToken(type);
 	}
@@ -229,18 +196,18 @@ public class Scanner : IScanner
 
 	private void Number()
 	{
-		while (IsDigit(Peek())) Advance();
+		while (IsDigit(_cursor.Peek())) _cursor.Advance();
 
 		// Look for a fractional part.
-		if (Peek() == '.' && IsDigit(PeekNext()))
+		if (_cursor.Peek() == '.' && IsDigit(_cursor.PeekNext()))
 		{
 			// Consume the "."
-			Advance();
+			_cursor.Advance();
 
-			while (IsDigit(Peek())) Advance();
+			while (IsDigit(_cursor.Peek())) _cursor.Advance();
 		}
 
-		AddToken(TokenType.NUMBER, double.Parse(_source.Substring(_start, _current)));
+		AddToken(TokenType.NUMBER, double.Parse(_cursor.CurrentText));
 	}
 
 	#endregion

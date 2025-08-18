@@ -2,4 +2,7 @@ print "Hello world!";
 
 // this is a comment
 (( )){} // grouping stuff
+/* block
+comments
+go here */
 !*+-/=<> <= == // operators

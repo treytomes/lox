@@ -7,21 +7,21 @@ public class Interpreter : IInterpreter
 	#region Fields
 
 	private readonly IErrorReporter _errorReporter;
-	private readonly IScanner _scanner;
+	private readonly IScannerFactory _scannerFactory;
 	private readonly ILogger<Interpreter> _logger;
 
 	#endregion
 
 	#region Constructors
 
-	public Interpreter(IErrorReporter errorReporter, IScanner scanner, ILogger<Interpreter> logger)
+	public Interpreter(IErrorReporter errorReporter, IScannerFactory scannerFactory, ILogger<Interpreter> logger)
 	{
 		if (errorReporter == null) throw new ArgumentNullException(nameof(errorReporter));
-		if (scanner == null) throw new ArgumentNullException(nameof(scanner));
+		if (scannerFactory == null) throw new ArgumentNullException(nameof(scannerFactory));
 		if (logger == null) throw new ArgumentNullException(nameof(logger));
 
 		_errorReporter = errorReporter;
-		_scanner = scanner;
+		_scannerFactory = scannerFactory;
 		_logger = logger;
 	}
 
@@ -32,7 +32,8 @@ public class Interpreter : IInterpreter
 	public async Task RunAsync(IExecutionSource source)
 	{
 		var sourceText = await source.GetSourceAsync();
-		var tokens = _scanner.ScanTokens(sourceText);
+		var scanner = _scannerFactory.GetScanner(sourceText);
+		var tokens = scanner.ScanTokens(sourceText);
 		foreach (var token in tokens)
 		{
 			Console.WriteLine(token);

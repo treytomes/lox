@@ -8,6 +8,7 @@ public static class ServiceCollectionExtensions
 	{
 		@this.AddSingleton<IErrorReporter, ConsoleErrorReporter>();
 
+		@this.AddTransient<IScannerFactory, ScannerFactory>();
 		@this.AddTransient<IInterpreter, Interpreter>();
 		if (!string.IsNullOrWhiteSpace(filePath))
 		{

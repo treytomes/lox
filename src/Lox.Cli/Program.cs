@@ -1,9 +1,11 @@
 ﻿using System.CommandLine;
+using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
+using Microsoft.Extensions.Options;
 
 namespace Lox.Cli;
 
@@ -58,6 +60,7 @@ class Program
 		{
 			// Build host with DI container.
 			using var host = CreateHostBuilder(filePath, configFile, debug).Build();
+			debug = host.Services.GetRequiredService<IOptions<AppSettings>>().Value.Debug;
 
 			await host.Services.GetRequiredService<IAppState>().RunAsync();
 
@@ -65,7 +68,14 @@ class Program
 		}
 		catch (Exception ex)
 		{
-			Console.Error.WriteLine($"Error: {ex.Message}");
+			if (debug)
+			{
+				Console.Error.WriteLine(ex);
+			}
+			else
+			{
+				Console.Error.WriteLine($"Error: {ex.Message}");
+			}
 			return 1;
 		}
 	}
@@ -76,8 +86,8 @@ class Program
 			.ConfigureAppConfiguration((hostContext, config) =>
 			{
 				config.Sources.Clear();
-				config.SetBasePath(Directory.GetCurrentDirectory());
-				config.AddJsonFile(configFile, optional: true, reloadOnChange: false);
+				config.SetBasePath(Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location) ?? Directory.GetCurrentDirectory());
+				config.AddJsonFile(configFile, optional: false, reloadOnChange: false);
 
 				// Add command line overrides
 				var commandLineConfig = new Dictionary<string, string?>();
@@ -92,7 +102,7 @@ class Program
 			{
 				logging.ClearProviders();
 
-				// Use simple console for better performance in production
+				// Use simple console for better performance in production.
 				if (hostContext.Configuration.GetValue<bool>("Debug"))
 				{
 					// Add console logging with more options.

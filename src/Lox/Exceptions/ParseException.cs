@@ -1,6 +1,6 @@
 namespace Lox.Exceptions;
 
-class ParseException : ApplicationException
+class ParseException : LoxException
 {
 	public ParseException()
 		: base()

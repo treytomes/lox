@@ -51,6 +51,7 @@ public class Scanner : IScanner
 	public IList<Token> ScanTokens(string source)
 	{
 		_cursor.ResetCursor(source);
+		_tokens.Clear();
 
 		while (!_cursor.IsAtEnd)
 		{

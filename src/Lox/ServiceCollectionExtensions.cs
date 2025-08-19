@@ -10,12 +10,12 @@ public static class ServiceCollectionExtensions
 	public static IServiceCollection ConfigureLox(this IServiceCollection @this, string? filePath)
 	{
 		@this.AddSingleton<IErrorReporter, ConsoleErrorReporter>();
-
-		@this.AddTransient<IScanner, Scanner>();
-		@this.AddTransient<IParser, Parser>();
 		@this.AddTransient<IScannerCursor, ScannerCursor>();
+		@this.AddTransient<IScanner, Scanner>();
 		@this.AddTransient<IParserCursor, ParserCursor>();
+		@this.AddTransient<IParser, Parser>();
 		@this.AddTransient<IInterpreter, Interpreter>();
+		@this.AddTransient<ILox, Lox>();
 		if (!string.IsNullOrWhiteSpace(filePath))
 		{
 			@this.AddTransient<IExecutionSource>(sp => new FileExecutionSource(filePath));

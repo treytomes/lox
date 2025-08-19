@@ -1,3 +1,5 @@
+using Lox.Exceptions;
+
 namespace Lox.Reporting;
 
 public class ConsoleErrorReporter : IErrorReporter
@@ -5,12 +7,14 @@ public class ConsoleErrorReporter : IErrorReporter
 	#region Fields
 
 	private bool _hadError = false;
+	private bool _hadRuntimeError = false;
 
 	#endregion
 
 	#region Properties
 
 	public bool HadError => _hadError;
+	public bool HadRuntimeError => _hadRuntimeError;
 
 	#endregion
 
@@ -22,9 +26,16 @@ public class ConsoleErrorReporter : IErrorReporter
 		_hadError = true;
 	}
 
-	public void ResetErrorFlag()
+	public void RuntimeError(RuntimeException error)
+	{
+		Console.WriteLine($"{error.Message}\n[line {error.Token.Line}]");
+		_hadRuntimeError = true;
+	}
+
+	public void ResetErrorFlags()
 	{
 		_hadError = false;
+		_hadRuntimeError = false;
 	}
 
 	#endregion

@@ -27,6 +27,7 @@ public class Parser : IParser
 
 	#region Methods
 
+	/// <returns>Null if there was a parsing exception.  Not sure if that's the best idea though.</returns>
 	public Expr? Parse(IEnumerable<Token> tokens)
 	{
 		try
@@ -47,7 +48,7 @@ public class Parser : IParser
 
 	private Expr Equality()
 	{
-		var expr = Equality();
+		var expr = Comparison();
 
 		while (_cursor.Match(TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL))
 		{

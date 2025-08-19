@@ -1,6 +1,6 @@
 namespace Lox;
 
-public interface IInterpreter
+public interface ILox
 {
 	Task RunAsync(IExecutionSource source);
 }

@@ -1,3 +1,5 @@
+using Lox.Exceptions;
+
 namespace Lox.Reporting;
 
 public interface IErrorReporter
@@ -5,13 +7,15 @@ public interface IErrorReporter
 	#region Properties
 
 	bool HadError { get; }
+	bool HadRuntimeError { get; }
 
 	#endregion
 
 	#region Methods
 
-	void ResetErrorFlag();
+	void ResetErrorFlags();
 	void Report(int line, string where, string message);
+	void RuntimeError(RuntimeException error);
 
 	void Error(Token token, string message)
 	{

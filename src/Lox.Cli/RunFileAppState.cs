@@ -8,7 +8,7 @@ public class RunFileAppState : IAppState
 	#region Fields
 
 	private readonly IErrorReporter _errorReporter;
-	private readonly IInterpreter _interpreter;
+	private readonly ILox _lox;
 	private readonly IExecutionSource _source;
 	private readonly ILogger<RunFileAppState> _logger;
 
@@ -16,15 +16,15 @@ public class RunFileAppState : IAppState
 
 	#region Constructors
 
-	public RunFileAppState(IErrorReporter errorReporter, IInterpreter interpreter, IExecutionSource source, ILogger<RunFileAppState> logger)
+	public RunFileAppState(IErrorReporter errorReporter, ILox lox, IExecutionSource source, ILogger<RunFileAppState> logger)
 	{
 		if (errorReporter == null) throw new ArgumentNullException(nameof(errorReporter));
-		if (interpreter == null) throw new ArgumentNullException(nameof(interpreter));
+		if (lox == null) throw new ArgumentNullException(nameof(lox));
 		if (source == null) throw new ArgumentNullException(nameof(source));
 		if (logger == null) throw new ArgumentNullException(nameof(logger));
 
 		_errorReporter = errorReporter;
-		_interpreter = interpreter;
+		_lox = lox;
 		_source = source;
 		_logger = logger;
 	}
@@ -35,7 +35,7 @@ public class RunFileAppState : IAppState
 
 	public async Task RunAsync()
 	{
-		await _interpreter.RunAsync(_source);
+		await _lox.RunAsync(_source);
 		if (_errorReporter.HadError)
 		{
 			throw new ApplicationException("There was an error running your program.");

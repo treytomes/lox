@@ -1,6 +1,6 @@
 namespace Lox;
 
-public static class CharExtensions
+static class CharExtensions
 {
 	public static bool IsAlpha(this char @this)
 	{

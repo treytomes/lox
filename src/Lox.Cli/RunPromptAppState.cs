@@ -8,21 +8,21 @@ public class RunPromptAppState : IAppState
 	#region Fields
 
 	private readonly IErrorReporter _errorReporter;
-	private readonly IInterpreter _interpreter;
+	private readonly ILox _lox;
 	private readonly ILogger<RunFileAppState> _logger;
 
 	#endregion
 
 	#region Constructors
 
-	public RunPromptAppState(IErrorReporter errorReporter, IInterpreter interpreter, ILogger<RunFileAppState> logger)
+	public RunPromptAppState(IErrorReporter errorReporter, ILox lox, ILogger<RunFileAppState> logger)
 	{
 		if (errorReporter == null) throw new ArgumentNullException(nameof(errorReporter));
-		if (interpreter == null) throw new ArgumentNullException(nameof(interpreter));
+		if (lox == null) throw new ArgumentNullException(nameof(lox));
 		if (logger == null) throw new ArgumentNullException(nameof(logger));
 
 		_errorReporter = errorReporter;
-		_interpreter = interpreter;
+		_lox = lox;
 		_logger = logger;
 	}
 
@@ -40,8 +40,8 @@ public class RunPromptAppState : IAppState
 			{
 				break;
 			}
-			await _interpreter.RunAsync(new ImmediateExecutionSource(sourceText));
-			_errorReporter.ResetErrorFlag();
+			await _lox.RunAsync(new ImmediateExecutionSource(sourceText));
+			_errorReporter.ResetErrorFlags();
 		}
 	}
 

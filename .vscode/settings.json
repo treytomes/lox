@@ -4,6 +4,7 @@
 		"appsettings",
 		"buildtransitive",
 		"contentfiles",
+		"Falsey",
 		"msbuild",
 		"xunit"
 	],

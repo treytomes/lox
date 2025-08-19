@@ -1,8 +1,8 @@
 namespace Lox.Expressions;
 
-public record SetExpr<T>(Expr<T> Object, Token Name, Expr<T> Value) : Expr<T>
+public record SetExpr(Expr Object, Token Name, Expr Value) : Expr
 {
-	public override T Accept(IVisitor<T> visitor)
+	public override T Accept<T>(IVisitor<T> visitor)
 	{
 		return visitor.VisitSetExpr(this);
 	}

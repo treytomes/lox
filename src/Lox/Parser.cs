@@ -1,4 +1,6 @@
+using Lox.Exceptions;
 using Lox.Expressions;
+using Lox.Reporting;
 
 namespace Lox;
 
@@ -11,6 +13,7 @@ public class Parser : IParser
 {
 	#region Fields
 
+	private readonly IErrorReporter _errorReporter;
 	private readonly IList<Token> _tokens;
 	private int _current = 0;
 
@@ -18,9 +21,11 @@ public class Parser : IParser
 
 	#region Constructors
 
-	public Parser(IList<Token> tokens)
+	public Parser(IErrorReporter errorReporter, IList<Token> tokens)
 	{
+		if (errorReporter == null) throw new ArgumentNullException(nameof(errorReporter));
 		if (tokens == null) throw new ArgumentNullException(nameof(tokens));
+		_errorReporter = errorReporter;
 		_tokens = tokens;
 	}
 
@@ -34,12 +39,24 @@ public class Parser : IParser
 
 	#region Methods
 
-	private Expr<object?> Expression()
+	public Expr? Parse()
+	{
+		try
+		{
+			return Expression();
+		}
+		catch (ParseException)
+		{
+			return null;
+		}
+	}
+
+	private Expr Expression()
 	{
 		return Equality();
 	}
 
-	private Expr<object?> Equality()
+	private Expr Equality()
 	{
 		var expr = Equality();
 
@@ -47,13 +64,13 @@ public class Parser : IParser
 		{
 			var op = Previous();
 			var right = Comparison();
-			expr = new BinaryExpr<object?>(expr, op, right);
+			expr = new BinaryExpr(expr, op, right);
 		}
 
 		return expr;
 	}
 
-	private Expr<object?> Comparison()
+	private Expr Comparison()
 	{
 		var expr = Term();
 
@@ -61,13 +78,13 @@ public class Parser : IParser
 		{
 			var op = Previous();
 			var right = Term();
-			expr = new BinaryExpr<object?>(expr, op, right);
+			expr = new BinaryExpr(expr, op, right);
 		}
 
 		return expr;
 	}
 
-	private Expr<object?> Term()
+	private Expr Term()
 	{
 		var expr = Factor();
 
@@ -75,13 +92,13 @@ public class Parser : IParser
 		{
 			var op = Previous();
 			var right = Factor();
-			expr = new BinaryExpr<object?>(expr, op, right);
+			expr = new BinaryExpr(expr, op, right);
 		}
 
 		return expr;
 	}
 
-	private Expr<object?> Factor()
+	private Expr Factor()
 	{
 		var expr = Unary();
 
@@ -89,41 +106,43 @@ public class Parser : IParser
 		{
 			var op = Previous();
 			var right = Unary();
-			expr = new BinaryExpr<object?>(expr, op, right);
+			expr = new BinaryExpr(expr, op, right);
 		}
 
 		return expr;
 	}
 
-	private Expr<object?> Unary()
+	private Expr Unary()
 	{
 		if (Match(TokenType.BANG, TokenType.MINUS))
 		{
 			var op = Previous();
 			var right = Unary();
-			return new UnaryExpr<object?>(op, right);
+			return new UnaryExpr(op, right);
 		}
 
 		return Primary();
 	}
 
-	private Expr<object?> Primary()
+	private Expr Primary()
 	{
-		if (Match(TokenType.FALSE)) return new LiteralExpr<object?>(false);
-		if (Match(TokenType.TRUE)) return new LiteralExpr<object?>(true);
-		if (Match(TokenType.NIL)) return new LiteralExpr<object?>(null);
+		if (Match(TokenType.FALSE)) return new LiteralExpr(false);
+		if (Match(TokenType.TRUE)) return new LiteralExpr(true);
+		if (Match(TokenType.NIL)) return new LiteralExpr(null);
 
 		if (Match(TokenType.NUMBER, TokenType.STRING))
 		{
-			return new LiteralExpr<object?>(Previous().Literal);
+			return new LiteralExpr(Previous().Literal);
 		}
 
 		if (Match(TokenType.LEFT_PAREN))
 		{
 			var expr = Expression();
 			Consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.");
-			return new GroupingExpr<object?>(expr);
+			return new GroupingExpr(expr);
 		}
+
+		throw Error(Peek(), "Expect expression.");
 	}
 
 	private bool Match(params TokenType[] types)
@@ -162,5 +181,42 @@ public class Parser : IParser
 		return _tokens[_current - 1];
 	}
 
+	private Token Consume(TokenType type, string message)
+	{
+		if (Check(type)) return Advance();
+
+		throw Error(Peek(), message);
+	}
+
+	private ParseException Error(Token token, string message)
+	{
+		_errorReporter.Error(token, message);
+		return new ParseException();
+	}
+
+	private void Synchronize()
+	{
+		Advance();
+
+		while (!IsAtEnd)
+		{
+			if (Previous().Type == TokenType.SEMICOLON) return;
+
+			switch (Peek().Type)
+			{
+				case TokenType.CLASS:
+				case TokenType.FUN:
+				case TokenType.VAR:
+				case TokenType.FOR:
+				case TokenType.IF:
+				case TokenType.WHILE:
+				case TokenType.PRINT:
+				case TokenType.RETURN:
+					return;
+			}
+
+			Advance();
+		}
+	}
 	#endregion
 }

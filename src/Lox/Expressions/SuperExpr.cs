@@ -1,8 +1,8 @@
 namespace Lox.Expressions;
 
-public record SuperExpr<T>(Token Keyword, Token Method) : Expr<T>
+public record SuperExpr(Token Keyword, Token Method) : Expr
 {
-	public override T Accept(IVisitor<T> visitor)
+	public override T Accept<T>(IVisitor<T> visitor)
 	{
 		return visitor.VisitSuperExpr(this);
 	}

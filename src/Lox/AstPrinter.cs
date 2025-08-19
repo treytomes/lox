@@ -5,72 +5,72 @@ namespace Lox;
 
 public class AstPrinter : IVisitor<string>
 {
-	public string ToString(Expr<string> expr)
+	public string ToString(Expr expr)
 	{
 		return expr.Accept(this);
 	}
 
-	public string VisitAssignExpr(AssignExpr<string> expr)
+	public string VisitAssignExpr(AssignExpr expr)
 	{
 		throw new NotImplementedException();
 	}
 
-	public string VisitBinaryExpr(BinaryExpr<string> expr)
+	public string VisitBinaryExpr(BinaryExpr expr)
 	{
 		return Parenthesize(expr.Operator.Lexeme, expr.Left, expr.Right);
 	}
 
-	public string VisitCallExpr(CallExpr<string> expr)
+	public string VisitCallExpr(CallExpr expr)
 	{
 		throw new NotImplementedException();
 	}
 
-	public string VisitGetExpr(GetExpr<string> expr)
+	public string VisitGetExpr(GetExpr expr)
 	{
 		throw new NotImplementedException();
 	}
 
-	public string VisitGroupingExpr(GroupingExpr<string> expr)
+	public string VisitGroupingExpr(GroupingExpr expr)
 	{
 		return Parenthesize("group", expr.Expression);
 	}
 
-	public string VisitLiteralExpr(LiteralExpr<string> expr)
+	public string VisitLiteralExpr(LiteralExpr expr)
 	{
-		return expr.Value.ToString() ?? "nil";
+		return expr.Value?.ToString() ?? "nil";
 	}
 
-	public string VisitLogicalExpr(LogicalExpr<string> expr)
-	{
-		throw new NotImplementedException();
-	}
-
-	public string VisitSetExpr(SetExpr<string> expr)
+	public string VisitLogicalExpr(LogicalExpr expr)
 	{
 		throw new NotImplementedException();
 	}
 
-	public string VisitSuperExpr(SuperExpr<string> expr)
+	public string VisitSetExpr(SetExpr expr)
 	{
 		throw new NotImplementedException();
 	}
 
-	public string VisitThisExpr(ThisExpr<string> expr)
+	public string VisitSuperExpr(SuperExpr expr)
 	{
 		throw new NotImplementedException();
 	}
 
-	public string VisitUnaryExpr(UnaryExpr<string> expr)
+	public string VisitThisExpr(ThisExpr expr)
+	{
+		throw new NotImplementedException();
+	}
+
+	public string VisitUnaryExpr(UnaryExpr expr)
 	{
 		return Parenthesize(expr.Operator.Lexeme, expr.Right);
 	}
 
-	public string VisitVariableExpr(VariableExpr<string> expr)
+	public string VisitVariableExpr(VariableExpr expr)
 	{
 		throw new NotImplementedException();
 	}
 
-	private string Parenthesize(string name, params Expr<string>[] exprs)
+	private string Parenthesize(string name, params Expr[] exprs)
 	{
 		var builder = new StringBuilder();
 

@@ -1,8 +1,8 @@
 namespace Lox.Expressions;
 
-public record UnaryExpr<T>(Token Operator, Expr<T> Right) : Expr<T>
+public record UnaryExpr(Token Operator, Expr Right) : Expr
 {
-	public override T Accept(IVisitor<T> visitor)
+	public override T Accept<T>(IVisitor<T> visitor)
 	{
 		return visitor.VisitUnaryExpr(this);
 	}

@@ -1,6 +1,6 @@
 namespace Lox.Expressions;
 
-public abstract record Expr<T>
+public abstract record Expr
 {
-	public abstract T Accept(IVisitor<T> visitor);
+	public abstract T Accept<T>(IVisitor<T> visitor);
 }

@@ -7,13 +7,13 @@ public class AstPrinterTests
 	[Fact]
 	public void CanGenerateAst()
 	{
-		var expression = new BinaryExpr<string>(
-				new UnaryExpr<string>(
+		var expression = new BinaryExpr(
+				new UnaryExpr(
 					new Token(TokenType.MINUS, "-", null, 1),
-					new LiteralExpr<string>(123)),
+					new LiteralExpr(123)),
 				new Token(TokenType.STAR, "*", null, 1),
-				new GroupingExpr<string>(
-					new LiteralExpr<string>(45.67)));
+				new GroupingExpr(
+					new LiteralExpr(45.67)));
 
 		var expected = "(* (- 123) (group 45.67))";
 		var actual = new AstPrinter().ToString(expression);

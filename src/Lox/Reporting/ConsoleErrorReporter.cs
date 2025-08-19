@@ -1,4 +1,4 @@
-namespace Lox;
+namespace Lox.Reporting;
 
 public class ConsoleErrorReporter : IErrorReporter
 {
@@ -23,8 +23,20 @@ public class ConsoleErrorReporter : IErrorReporter
 
 	public void Report(int line, string where, string message)
 	{
-		Console.WriteLine($"[line {line}] Error{where}: {message}");
+		Console.WriteLine(new LoxError(line, where, message).ToString());
 		_hadError = true;
+	}
+
+	public void Error(Token token, string message)
+	{
+		if (token.Type == TokenType.EOF)
+		{
+			Report(token.Line, " at end", message);
+		}
+		else
+		{
+			Report(token.Line, $" at '{token.Lexeme}'", message);
+		}
 	}
 
 	public void ResetErrorFlag()

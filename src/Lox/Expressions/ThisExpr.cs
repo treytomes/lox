@@ -1,8 +1,8 @@
 namespace Lox.Expressions;
 
-public record ThisExpr<T>(Token Keyword) : Expr<T>
+public record ThisExpr(Token Keyword) : Expr
 {
-	public override T Accept(IVisitor<T> visitor)
+	public override T Accept<T>(IVisitor<T> visitor)
 	{
 		return visitor.VisitThisExpr(this);
 	}

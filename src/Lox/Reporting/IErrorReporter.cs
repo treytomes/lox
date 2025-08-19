@@ -1,4 +1,4 @@
-namespace Lox;
+namespace Lox.Reporting;
 
 public interface IErrorReporter
 {
@@ -7,4 +7,5 @@ public interface IErrorReporter
 	void ResetErrorFlag();
 	void Error(int line, string message);
 	void Report(int line, string where, string message);
+	void Error(Token token, string message);
 }

@@ -1,8 +1,8 @@
 namespace Lox.Expressions;
 
-public record BinaryExpr<T>(Expr<T> Left, Token Operator, Expr<T> Right) : Expr<T>
+public record BinaryExpr(Expr Left, Token Operator, Expr Right) : Expr
 {
-	public override T Accept(IVisitor<T> visitor)
+	public override T Accept<T>(IVisitor<T> visitor)
 	{
 		return visitor.VisitBinaryExpr(this);
 	}

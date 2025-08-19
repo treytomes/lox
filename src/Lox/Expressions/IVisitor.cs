@@ -2,16 +2,16 @@ namespace Lox.Expressions;
 
 public interface IVisitor<T>
 {
-	T VisitAssignExpr(AssignExpr<T> expr);
-	T VisitBinaryExpr(BinaryExpr<T> expr);
-	T VisitCallExpr(CallExpr<T> expr);
-	T VisitGetExpr(GetExpr<T> expr);
-	T VisitGroupingExpr(GroupingExpr<T> expr);
-	T VisitLiteralExpr(LiteralExpr<T> expr);
-	T VisitLogicalExpr(LogicalExpr<T> expr);
-	T VisitSetExpr(SetExpr<T> expr);
-	T VisitSuperExpr(SuperExpr<T> expr);
-	T VisitThisExpr(ThisExpr<T> expr);
-	T VisitUnaryExpr(UnaryExpr<T> expr);
-	T VisitVariableExpr(VariableExpr<T> expr);
+	T VisitAssignExpr(AssignExpr expr);
+	T VisitBinaryExpr(BinaryExpr expr);
+	T VisitCallExpr(CallExpr expr);
+	T VisitGetExpr(GetExpr expr);
+	T VisitGroupingExpr(GroupingExpr expr);
+	T VisitLiteralExpr(LiteralExpr expr);
+	T VisitLogicalExpr(LogicalExpr expr);
+	T VisitSetExpr(SetExpr expr);
+	T VisitSuperExpr(SuperExpr expr);
+	T VisitThisExpr(ThisExpr expr);
+	T VisitUnaryExpr(UnaryExpr expr);
+	T VisitVariableExpr(VariableExpr expr);
 }

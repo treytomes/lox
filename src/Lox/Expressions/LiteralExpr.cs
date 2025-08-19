@@ -1,8 +1,8 @@
 namespace Lox.Expressions;
 
-public record LiteralExpr<T>(object? Value) : Expr<T>
+public record LiteralExpr(object? Value) : Expr
 {
-	public override T Accept(IVisitor<T> visitor)
+	public override T Accept<T>(IVisitor<T> visitor)
 	{
 		return visitor.VisitLiteralExpr(this);
 	}

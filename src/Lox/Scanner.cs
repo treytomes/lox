@@ -1,5 +1,6 @@
 
 using System.Collections.ObjectModel;
+using Lox.Reporting;
 
 namespace Lox;
 

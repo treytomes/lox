@@ -119,11 +119,11 @@ public class Scanner : IScanner
 			case '"': String(); break;
 
 			default:
-				if (IsDigit(c))
+				if (c.IsDigit())
 				{
 					Number();
 				}
-				else if (IsAlpha(c))
+				else if (c.IsAlpha())
 				{
 					Identifier();
 				}
@@ -171,41 +171,24 @@ public class Scanner : IScanner
 
 	private void Identifier()
 	{
-		while (IsAlphaNumeric(_cursor.Peek())) _cursor.Advance();
+		while (_cursor.Peek().IsAlphaNumeric()) _cursor.Advance();
 
 		var text = _cursor.CurrentText;
 		var type = _keywords.GetValueOrDefault(text, TokenType.IDENTIFIER);
 		AddToken(type);
 	}
 
-	private bool IsAlpha(char c)
-	{
-		return (c >= 'a' && c <= 'z') ||
-			   (c >= 'A' && c <= 'Z') ||
-				c == '_';
-	}
-
-	private bool IsDigit(char c)
-	{
-		return c >= '0' && c <= '9';
-	}
-
-	private bool IsAlphaNumeric(char c)
-	{
-		return IsAlpha(c) || IsDigit(c);
-	}
-
 	private void Number()
 	{
-		while (IsDigit(_cursor.Peek())) _cursor.Advance();
+		while (_cursor.Peek().IsDigit()) _cursor.Advance();
 
 		// Look for a fractional part.
-		if (_cursor.Peek() == '.' && IsDigit(_cursor.PeekNext()))
+		if (_cursor.Peek() == '.' && _cursor.PeekNext().IsDigit())
 		{
 			// Consume the "."
 			_cursor.Advance();
 
-			while (IsDigit(_cursor.Peek())) _cursor.Advance();
+			while (_cursor.Peek().IsDigit()) _cursor.Advance();
 		}
 
 		AddToken(TokenType.NUMBER, double.Parse(_cursor.CurrentText));

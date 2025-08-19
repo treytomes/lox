@@ -1,3 +1,5 @@
+using Lox.Parsing;
+using Lox.Reporting;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Lox;
@@ -11,6 +13,7 @@ public static class ServiceCollectionExtensions
 		@this.AddTransient<IScanner, Scanner>();
 		@this.AddTransient<IParser, Parser>();
 		@this.AddTransient<IScannerCursor, ScannerCursor>();
+		@this.AddTransient<IParserCursor, ParserCursor>();
 		@this.AddTransient<IInterpreter, Interpreter>();
 		if (!string.IsNullOrWhiteSpace(filePath))
 		{

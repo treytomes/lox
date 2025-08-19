@@ -2,47 +2,36 @@ using Lox.Exceptions;
 using Lox.Expressions;
 using Lox.Reporting;
 
-namespace Lox;
-
-public interface IParser
-{
-
-}
+namespace Lox.Parsing;
 
 public class Parser : IParser
 {
 	#region Fields
 
 	private readonly IErrorReporter _errorReporter;
-	private readonly IList<Token> _tokens;
-	private int _current = 0;
+	private readonly IParserCursor _cursor;
 
 	#endregion
 
 	#region Constructors
 
-	public Parser(IErrorReporter errorReporter, IList<Token> tokens)
+	public Parser(IParserCursor cursor, IErrorReporter errorReporter)
 	{
+		if (cursor == null) throw new ArgumentNullException(nameof(cursor));
 		if (errorReporter == null) throw new ArgumentNullException(nameof(errorReporter));
-		if (tokens == null) throw new ArgumentNullException(nameof(tokens));
+		_cursor = cursor;
 		_errorReporter = errorReporter;
-		_tokens = tokens;
 	}
-
-	#endregion
-
-	#region Properties
-
-	private bool IsAtEnd => Peek().Type == TokenType.EOF;
 
 	#endregion
 
 	#region Methods
 
-	public Expr? Parse()
+	public Expr? Parse(IEnumerable<Token> tokens)
 	{
 		try
 		{
+			_cursor.ResetCursor(tokens);
 			return Expression();
 		}
 		catch (ParseException)
@@ -60,9 +49,9 @@ public class Parser : IParser
 	{
 		var expr = Equality();
 
-		while (Match(TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL))
+		while (_cursor.Match(TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL))
 		{
-			var op = Previous();
+			var op = _cursor.Previous();
 			var right = Comparison();
 			expr = new BinaryExpr(expr, op, right);
 		}
@@ -74,9 +63,9 @@ public class Parser : IParser
 	{
 		var expr = Term();
 
-		while (Match(TokenType.GREATER, TokenType.GREATER_EQUAL, TokenType.LESS, TokenType.LESS_EQUAL))
+		while (_cursor.Match(TokenType.GREATER, TokenType.GREATER_EQUAL, TokenType.LESS, TokenType.LESS_EQUAL))
 		{
-			var op = Previous();
+			var op = _cursor.Previous();
 			var right = Term();
 			expr = new BinaryExpr(expr, op, right);
 		}
@@ -88,9 +77,9 @@ public class Parser : IParser
 	{
 		var expr = Factor();
 
-		while (Match(TokenType.MINUS, TokenType.PLUS))
+		while (_cursor.Match(TokenType.MINUS, TokenType.PLUS))
 		{
-			var op = Previous();
+			var op = _cursor.Previous();
 			var right = Factor();
 			expr = new BinaryExpr(expr, op, right);
 		}
@@ -102,9 +91,9 @@ public class Parser : IParser
 	{
 		var expr = Unary();
 
-		while (Match(TokenType.SLASH, TokenType.STAR))
+		while (_cursor.Match(TokenType.SLASH, TokenType.STAR))
 		{
-			var op = Previous();
+			var op = _cursor.Previous();
 			var right = Unary();
 			expr = new BinaryExpr(expr, op, right);
 		}
@@ -114,9 +103,9 @@ public class Parser : IParser
 
 	private Expr Unary()
 	{
-		if (Match(TokenType.BANG, TokenType.MINUS))
+		if (_cursor.Match(TokenType.BANG, TokenType.MINUS))
 		{
-			var op = Previous();
+			var op = _cursor.Previous();
 			var right = Unary();
 			return new UnaryExpr(op, right);
 		}
@@ -126,66 +115,30 @@ public class Parser : IParser
 
 	private Expr Primary()
 	{
-		if (Match(TokenType.FALSE)) return new LiteralExpr(false);
-		if (Match(TokenType.TRUE)) return new LiteralExpr(true);
-		if (Match(TokenType.NIL)) return new LiteralExpr(null);
+		if (_cursor.Match(TokenType.FALSE)) return new LiteralExpr(false);
+		if (_cursor.Match(TokenType.TRUE)) return new LiteralExpr(true);
+		if (_cursor.Match(TokenType.NIL)) return new LiteralExpr(null);
 
-		if (Match(TokenType.NUMBER, TokenType.STRING))
+		if (_cursor.Match(TokenType.NUMBER, TokenType.STRING))
 		{
-			return new LiteralExpr(Previous().Literal);
+			return new LiteralExpr(_cursor.Previous().Literal);
 		}
 
-		if (Match(TokenType.LEFT_PAREN))
+		if (_cursor.Match(TokenType.LEFT_PAREN))
 		{
 			var expr = Expression();
 			Consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.");
 			return new GroupingExpr(expr);
 		}
 
-		throw Error(Peek(), "Expect expression.");
-	}
-
-	private bool Match(params TokenType[] types)
-	{
-		foreach (var type in types)
-		{
-			if (Check(type))
-			{
-				Advance();
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	private bool Check(TokenType type)
-	{
-		if (IsAtEnd) return false;
-		return Peek().Type == type;
-	}
-
-	private Token Advance()
-	{
-		if (!IsAtEnd) _current++;
-		return Previous();
-	}
-
-	private Token Peek()
-	{
-		return _tokens[_current];
-	}
-
-	private Token Previous()
-	{
-		return _tokens[_current - 1];
+		throw Error(_cursor.Peek(), "Expect expression.");
 	}
 
 	private Token Consume(TokenType type, string message)
 	{
-		if (Check(type)) return Advance();
+		if (_cursor.Check(type)) return _cursor.Advance();
 
-		throw Error(Peek(), message);
+		throw Error(_cursor.Peek(), message);
 	}
 
 	private ParseException Error(Token token, string message)
@@ -196,13 +149,13 @@ public class Parser : IParser
 
 	private void Synchronize()
 	{
-		Advance();
+		_cursor.Advance();
 
-		while (!IsAtEnd)
+		while (!_cursor.IsAtEnd)
 		{
-			if (Previous().Type == TokenType.SEMICOLON) return;
+			if (_cursor.Previous().Type == TokenType.SEMICOLON) return;
 
-			switch (Peek().Type)
+			switch (_cursor.Peek().Type)
 			{
 				case TokenType.CLASS:
 				case TokenType.FUN:
@@ -215,8 +168,9 @@ public class Parser : IParser
 					return;
 			}
 
-			Advance();
+			_cursor.Advance();
 		}
 	}
+
 	#endregion
 }

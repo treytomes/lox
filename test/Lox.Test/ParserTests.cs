@@ -1,4 +1,5 @@
 using Lox.Expressions;
+using Lox.Parsing;
 
 namespace Lox.Test;
 
@@ -18,8 +19,9 @@ public class ParserTests
 		var errorReporter = new TestErrorReporter();
 		var scanner = new Scanner(new ScannerCursor(), errorReporter);
 		var tokens = scanner.ScanTokens(sourceText);
-		var parser = new Parser(errorReporter, tokens);
-		var actualExpression = parser.Parse();
+		var parserCursor = new ParserCursor();
+		var parser = new Parser(parserCursor, errorReporter);
+		var actualExpression = parser.Parse(tokens);
 
 		Assert.NotNull(actualExpression);
 		Assert.Equal(expectedExpression, actualExpression);

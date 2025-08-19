@@ -1,3 +1,4 @@
+using Lox.Reporting;
 using Microsoft.Extensions.Logging;
 
 namespace Lox.Cli;

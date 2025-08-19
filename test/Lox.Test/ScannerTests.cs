@@ -1,3 +1,5 @@
+using Lox.Scanning;
+
 namespace Lox.Test;
 
 public class ScannerTests

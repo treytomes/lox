@@ -2,7 +2,7 @@
 using System.Collections.ObjectModel;
 using Lox.Reporting;
 
-namespace Lox;
+namespace Lox.Scanning;
 
 public class Scanner : IScanner
 {

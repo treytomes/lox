@@ -1,5 +1,6 @@
 using Lox.Parsing;
 using Lox.Reporting;
+using Lox.Scanning;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Lox;

@@ -1,5 +1,6 @@
 using Lox.Expressions;
 using Lox.Parsing;
+using Lox.Scanning;
 
 namespace Lox.Test;
 

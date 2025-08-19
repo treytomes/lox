@@ -1,4 +1,5 @@
 ﻿using Lox.Reporting;
+using Lox.Scanning;
 using Microsoft.Extensions.Logging;
 
 namespace Lox;

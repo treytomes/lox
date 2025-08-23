@@ -2,7 +2,7 @@ using Lox.Expressions;
 
 namespace Lox.Visitors;
 
-public interface IVisitor<T>
+public interface IExprVisitor<T>
 {
 	T VisitAssignExpr(AssignExpr expr);
 	T VisitBinaryExpr(BinaryExpr expr);

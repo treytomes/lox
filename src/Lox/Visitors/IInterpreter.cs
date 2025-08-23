@@ -2,7 +2,7 @@ using Lox.Expressions;
 
 namespace Lox.Visitors;
 
-public interface IInterpreter : IVisitor<object?>
+public interface IInterpreter : IExprVisitor<object?>
 {
 	object? Evaluate(Expr expr);
 }

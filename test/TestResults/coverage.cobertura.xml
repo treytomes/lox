@@ -1201,7 +1201,7 @@
                 <line number="3" hits="0" branch="False" />
               </lines>
             </method>
-            <method name="Accept" signature="(Lox.Expressions.IVisitor`1&lt;T&gt;)" line-rate="0" branch-rate="1" complexity="1">
+            <method name="Accept" signature="(Lox.Expressions.IExprVisitor`1&lt;T&gt;)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
                 <line number="6" hits="0" branch="False" />
                 <line number="7" hits="0" branch="False" />
@@ -1223,7 +1223,7 @@
                 <line number="3" hits="4" branch="False" />
               </lines>
             </method>
-            <method name="Accept" signature="(Lox.Expressions.IVisitor`1&lt;T&gt;)" line-rate="1" branch-rate="1" complexity="1">
+            <method name="Accept" signature="(Lox.Expressions.IExprVisitor`1&lt;T&gt;)" line-rate="1" branch-rate="1" complexity="1">
               <lines>
                 <line number="6" hits="1" branch="False" />
                 <line number="7" hits="1" branch="False" />
@@ -1245,7 +1245,7 @@
                 <line number="3" hits="0" branch="False" />
               </lines>
             </method>
-            <method name="Accept" signature="(Lox.Expressions.IVisitor`1&lt;T&gt;)" line-rate="0" branch-rate="1" complexity="1">
+            <method name="Accept" signature="(Lox.Expressions.IExprVisitor`1&lt;T&gt;)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
                 <line number="6" hits="0" branch="False" />
                 <line number="7" hits="0" branch="False" />
@@ -1267,7 +1267,7 @@
                 <line number="3" hits="0" branch="False" />
               </lines>
             </method>
-            <method name="Accept" signature="(Lox.Expressions.IVisitor`1&lt;T&gt;)" line-rate="0" branch-rate="1" complexity="1">
+            <method name="Accept" signature="(Lox.Expressions.IExprVisitor`1&lt;T&gt;)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
                 <line number="6" hits="0" branch="False" />
                 <line number="7" hits="0" branch="False" />
@@ -1289,7 +1289,7 @@
                 <line number="3" hits="2" branch="False" />
               </lines>
             </method>
-            <method name="Accept" signature="(Lox.Expressions.IVisitor`1&lt;T&gt;)" line-rate="1" branch-rate="1" complexity="1">
+            <method name="Accept" signature="(Lox.Expressions.IExprVisitor`1&lt;T&gt;)" line-rate="1" branch-rate="1" complexity="1">
               <lines>
                 <line number="6" hits="1" branch="False" />
                 <line number="7" hits="1" branch="False" />
@@ -1311,7 +1311,7 @@
                 <line number="3" hits="4" branch="False" />
               </lines>
             </method>
-            <method name="Accept" signature="(Lox.Expressions.IVisitor`1&lt;T&gt;)" line-rate="1" branch-rate="1" complexity="1">
+            <method name="Accept" signature="(Lox.Expressions.IExprVisitor`1&lt;T&gt;)" line-rate="1" branch-rate="1" complexity="1">
               <lines>
                 <line number="6" hits="2" branch="False" />
                 <line number="7" hits="2" branch="False" />
@@ -1333,7 +1333,7 @@
                 <line number="3" hits="0" branch="False" />
               </lines>
             </method>
-            <method name="Accept" signature="(Lox.Expressions.IVisitor`1&lt;T&gt;)" line-rate="0" branch-rate="1" complexity="1">
+            <method name="Accept" signature="(Lox.Expressions.IExprVisitor`1&lt;T&gt;)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
                 <line number="6" hits="0" branch="False" />
                 <line number="7" hits="0" branch="False" />
@@ -1355,7 +1355,7 @@
                 <line number="3" hits="0" branch="False" />
               </lines>
             </method>
-            <method name="Accept" signature="(Lox.Expressions.IVisitor`1&lt;T&gt;)" line-rate="0" branch-rate="1" complexity="1">
+            <method name="Accept" signature="(Lox.Expressions.IExprVisitor`1&lt;T&gt;)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
                 <line number="6" hits="0" branch="False" />
                 <line number="7" hits="0" branch="False" />
@@ -1377,7 +1377,7 @@
                 <line number="3" hits="0" branch="False" />
               </lines>
             </method>
-            <method name="Accept" signature="(Lox.Expressions.IVisitor`1&lt;T&gt;)" line-rate="0" branch-rate="1" complexity="1">
+            <method name="Accept" signature="(Lox.Expressions.IExprVisitor`1&lt;T&gt;)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
                 <line number="6" hits="0" branch="False" />
                 <line number="7" hits="0" branch="False" />
@@ -1399,7 +1399,7 @@
                 <line number="3" hits="0" branch="False" />
               </lines>
             </method>
-            <method name="Accept" signature="(Lox.Expressions.IVisitor`1&lt;T&gt;)" line-rate="0" branch-rate="1" complexity="1">
+            <method name="Accept" signature="(Lox.Expressions.IExprVisitor`1&lt;T&gt;)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
                 <line number="6" hits="0" branch="False" />
                 <line number="7" hits="0" branch="False" />
@@ -1421,7 +1421,7 @@
                 <line number="3" hits="3" branch="False" />
               </lines>
             </method>
-            <method name="Accept" signature="(Lox.Expressions.IVisitor`1&lt;T&gt;)" line-rate="1" branch-rate="1" complexity="1">
+            <method name="Accept" signature="(Lox.Expressions.IExprVisitor`1&lt;T&gt;)" line-rate="1" branch-rate="1" complexity="1">
               <lines>
                 <line number="6" hits="1" branch="False" />
                 <line number="7" hits="1" branch="False" />
@@ -1443,7 +1443,7 @@
                 <line number="3" hits="0" branch="False" />
               </lines>
             </method>
-            <method name="Accept" signature="(Lox.Expressions.IVisitor`1&lt;T&gt;)" line-rate="0" branch-rate="1" complexity="1">
+            <method name="Accept" signature="(Lox.Expressions.IExprVisitor`1&lt;T&gt;)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
                 <line number="6" hits="0" branch="False" />
                 <line number="7" hits="0" branch="False" />

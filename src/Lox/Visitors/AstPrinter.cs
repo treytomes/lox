@@ -3,7 +3,7 @@ using Lox.Expressions;
 
 namespace Lox.Visitors;
 
-public class AstPrinter : IVisitor<string>
+public class AstPrinter : IExprVisitor<string>
 {
 	public string ToString(Expr expr)
 	{

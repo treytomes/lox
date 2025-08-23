@@ -2,12 +2,7 @@ using Lox.Exceptions;
 using Lox.Expressions;
 using Lox.Reporting;
 
-namespace Lox;
-
-public interface IInterpreter : IVisitor<object?>
-{
-	void Interpret(Expr expression);
-}
+namespace Lox.Visitors;
 
 public class Interpreter : IInterpreter
 {
@@ -28,18 +23,12 @@ public class Interpreter : IInterpreter
 	#endregion
 
 	#region Methods
-	public void Interpret(Expr expression)
+
+	public object? Evaluate(Expr expr)
 	{
-		try
-		{
-			var value = Evaluate(expression);
-			Console.WriteLine(Stringify(value));
-		}
-		catch (RuntimeException ex)
-		{
-			_errorReporter.RuntimeError(ex);
-		}
+		return expr.Accept(this);
 	}
+
 	public object? VisitAssignExpr(AssignExpr expr)
 	{
 		throw new NotImplementedException();
@@ -166,11 +155,6 @@ public class Interpreter : IInterpreter
 		throw new NotImplementedException();
 	}
 
-	private object? Evaluate(Expr expr)
-	{
-		return expr.Accept(this);
-	}
-
 	private void CheckNumberOperand(Token op, object operand)
 	{
 		if (operand is double) return;
@@ -181,24 +165,6 @@ public class Interpreter : IInterpreter
 	{
 		if (operands.All(x => x is double)) return;
 		throw new RuntimeException(op, "Operands must be numbers.");
-	}
-
-	private string Stringify(object? obj)
-	{
-		if (obj == null) return "nil";
-
-		if (obj is double)
-		{
-			var text = obj.ToString();
-			if (text == null) throw new NullReferenceException("This shouldn't have happened.");
-			if (text.EndsWith(".0"))
-			{
-				text = text.Substring(0, text.Length - 2);
-			}
-			return text;
-		}
-
-		return obj.ToString() ?? string.Empty;
 	}
 
 	#endregion

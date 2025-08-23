@@ -1,3 +1,5 @@
+using Lox.Visitors;
+
 namespace Lox.Expressions;
 
 public abstract record Expr

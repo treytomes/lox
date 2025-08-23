@@ -1,3 +1,5 @@
+using Lox.Visitors;
+
 namespace Lox.Expressions;
 
 public record GroupingExpr(Expr Expression) : Expr

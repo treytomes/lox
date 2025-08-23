@@ -2,6 +2,7 @@
 using Lox.Parsing;
 using Lox.Reporting;
 using Lox.Scanning;
+using Lox.Visitors;
 using Microsoft.Extensions.Logging;
 
 namespace Lox;
@@ -46,8 +47,38 @@ public class Lox : ILox
 		var expr = _parser.Parse(tokens);
 		if (expr != null)
 		{
-			_interpreter.Interpret(expr);
+			try
+			{
+				var value = _interpreter.Evaluate(expr);
+				Console.WriteLine(Stringify(value));
+			}
+			catch (RuntimeException ex)
+			{
+				_errorReporter.RuntimeError(ex);
+			}
 		}
+	}
+
+	private string Stringify(object? obj)
+	{
+		if (obj == null) return "nil";
+
+		if (obj is double)
+		{
+			var text = obj.ToString();
+			if (text == null) throw new NullReferenceException("This shouldn't have happened.");
+			if (text.EndsWith(".0"))
+			{
+				text = text.Substring(0, text.Length - 2);
+			}
+			return text;
+		}
+		else if (obj is string)
+		{
+			return $"\"{obj}\"";
+		}
+
+		return obj.ToString() ?? string.Empty;
 	}
 
 	#endregion

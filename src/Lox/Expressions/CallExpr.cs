@@ -1,3 +1,5 @@
+using Lox.Visitors;
+
 namespace Lox.Expressions;
 
 public record CallExpr(Expr Callee, Token Paren, List<Expr> Arguments) : Expr

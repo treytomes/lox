@@ -1,3 +1,5 @@
+using Lox.Visitors;
+
 namespace Lox.Expressions;
 
 public record GetExpr(Expr Object, Token Name) : Expr

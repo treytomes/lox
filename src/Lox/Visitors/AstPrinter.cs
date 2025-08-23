@@ -1,7 +1,7 @@
 using System.Text;
 using Lox.Expressions;
 
-namespace Lox;
+namespace Lox.Visitors;
 
 public class AstPrinter : IVisitor<string>
 {

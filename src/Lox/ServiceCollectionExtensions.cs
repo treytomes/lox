@@ -16,6 +16,7 @@ public static class ServiceCollectionExtensions
 		@this.AddTransient<IParserCursor, ParserCursor>();
 		@this.AddTransient<IParser, Parser>();
 		@this.AddTransient<IEnvironment, Environment>();
+		@this.AddSingleton<IOutputWriter, ConsoleOutputWriter>();
 		@this.AddTransient<IInterpreter, Interpreter>();
 		@this.AddTransient<ILox, Lox>();
 		if (!string.IsNullOrWhiteSpace(filePath))

@@ -10,15 +10,17 @@ public class Interpreter : IInterpreter
 	#region Fields
 
 	private readonly IEnvironment _environment;
+	private readonly IOutputWriter _console;
 	private readonly IErrorReporter _errorReporter;
 
 	#endregion
 
 	#region Constructors
 
-	public Interpreter(IEnvironment environment, IErrorReporter errorReporter)
+	public Interpreter(IEnvironment environment, IOutputWriter console, IErrorReporter errorReporter)
 	{
 		_environment = environment ?? throw new ArgumentNullException(nameof(environment));
+		_console = console ?? throw new ArgumentNullException(nameof(console));
 		_errorReporter = errorReporter ?? throw new ArgumentNullException(nameof(errorReporter));
 	}
 
@@ -74,8 +76,7 @@ public class Interpreter : IInterpreter
 	public void VisitPrintStmt(PrintStmt stmt)
 	{
 		var value = Evaluate(stmt.Expression);
-		// TODO: Inject the console output stream.
-		Console.WriteLine(value.Stringify());
+		_console.WriteLine(value.Stringify());
 	}
 
 	public void VisitReturnStmt(ReturnStmt stmt)

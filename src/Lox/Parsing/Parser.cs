@@ -37,7 +37,11 @@ public class Parser : IParser
 			_cursor.ResetCursor(tokens);
 			while (!_cursor.IsAtEnd)
 			{
-				statements.Add(Statement());
+				var stmt = Declaration();
+				if (stmt != null)
+				{
+					statements.Add(stmt);
+				}
 			}
 			return statements;
 		}
@@ -45,6 +49,35 @@ public class Parser : IParser
 		{
 			return null;
 		}
+	}
+
+	private Stmt? Declaration()
+	{
+		try
+		{
+			if (_cursor.Match(TokenType.VAR)) return VarDeclaration();
+
+			return Statement();
+		}
+		catch (ParseException)
+		{
+			Synchronize();
+			return null;
+		}
+	}
+
+	private Stmt VarDeclaration()
+	{
+		var name = Consume(TokenType.IDENTIFIER, "Expect variable name.");
+
+		Expr? initializer = null;
+		if (_cursor.Match(TokenType.EQUAL))
+		{
+			initializer = Expression();
+		}
+
+		Consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.");
+		return new VarStmt(name, initializer);
 	}
 
 	private Stmt Statement()
@@ -70,7 +103,28 @@ public class Parser : IParser
 
 	private Expr Expression()
 	{
-		return Equality();
+		return Assignment();
+	}
+
+	private Expr Assignment()
+	{
+		var expr = Equality();
+
+		if (_cursor.Match(TokenType.EQUAL))
+		{
+			var equals = _cursor.Previous();
+			var value = Assignment();
+
+			if (expr is VariableExpr)
+			{
+				var name = ((VariableExpr)expr).Name;
+				return new AssignExpr(name, value);
+			}
+
+			_errorReporter.Error(equals, "Invalid assignment target.");
+		}
+
+		return expr;
 	}
 
 	private Expr Equality()
@@ -150,6 +204,11 @@ public class Parser : IParser
 		if (_cursor.Match(TokenType.NUMBER, TokenType.STRING))
 		{
 			return new LiteralExpr(_cursor.Previous().Literal);
+		}
+
+		if (_cursor.Match(TokenType.IDENTIFIER))
+		{
+			return new VariableExpr(_cursor.Previous());
 		}
 
 		if (_cursor.Match(TokenType.LEFT_PAREN))

@@ -9,16 +9,17 @@ public class Interpreter : IInterpreter
 {
 	#region Fields
 
+	private readonly IEnvironment _environment;
 	private readonly IErrorReporter _errorReporter;
 
 	#endregion
 
 	#region Constructors
 
-	public Interpreter(IErrorReporter errorReporter)
+	public Interpreter(IEnvironment environment, IErrorReporter errorReporter)
 	{
-		if (errorReporter == null) throw new ArgumentNullException(nameof(errorReporter));
-		_errorReporter = errorReporter;
+		_environment = environment ?? throw new ArgumentNullException(nameof(environment));
+		_errorReporter = errorReporter ?? throw new ArgumentNullException(nameof(errorReporter));
 	}
 
 	#endregion
@@ -84,7 +85,13 @@ public class Interpreter : IInterpreter
 
 	public void VisitVarStmt(VarStmt stmt)
 	{
-		throw new NotImplementedException();
+		object? value = null;
+		if (stmt.Initializer != null)
+		{
+			value = Evaluate(stmt.Initializer);
+		}
+
+		_environment.Define(stmt.Name.Lexeme, value);
 	}
 
 	public void VisitWhileStmt(WhileStmt stmt)
@@ -98,7 +105,9 @@ public class Interpreter : IInterpreter
 
 	public object? VisitAssignExpr(AssignExpr expr)
 	{
-		throw new NotImplementedException();
+		var value = Evaluate(expr.Value);
+		_environment.Set(expr.Name, value);
+		return value;
 	}
 
 	public object? VisitBinaryExpr(BinaryExpr expr)
@@ -219,7 +228,7 @@ public class Interpreter : IInterpreter
 
 	public object? VisitVariableExpr(VariableExpr expr)
 	{
-		throw new NotImplementedException();
+		return _environment.Get(expr.Name);
 	}
 
 	#endregion

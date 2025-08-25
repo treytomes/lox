@@ -11,8 +11,9 @@ public class InterpreterTests
 	public void CanConcatenateStrings()
 	{
 		var sourceText = "\"Hello\" + \" \" + \"world!\";";
+		var env = new Environment();
 		var errorReporter = new TestErrorReporter();
-		var interpreter = new Interpreter(errorReporter);
+		var interpreter = new Interpreter(env, errorReporter);
 		var parser = new Parser(new ParserCursor(), errorReporter);
 		var scanner = new Scanner(new ScannerCursor(), errorReporter);
 		var tokens = scanner.ScanTokens(sourceText);

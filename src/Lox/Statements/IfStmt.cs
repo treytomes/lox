@@ -5,8 +5,8 @@ namespace Lox.Statements;
 
 public record IfStmt(Expr Condition, Stmt ThenBranch, Stmt ElseBranch) : Stmt
 {
-	public override T Accept<T>(IStmtVisitor<T> visitor)
+	public override void Accept(IStmtVisitor visitor)
 	{
-		return visitor.VisitIfStmt(this);
+		visitor.VisitIfStmt(this);
 	}
 }

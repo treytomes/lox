@@ -2,15 +2,15 @@ using Lox.Statements;
 
 namespace Lox.Visitors;
 
-public interface IStmtVisitor<T>
+public interface IStmtVisitor
 {
-	T VisitBlockStmt(BlockStmt stmt);
-	T VisitClassStmt(ClassStmt stmt);
-	T VisitExpressionStmt(ExpressionStmt stmt);
-	T VisitFunctionStmt(FunctionStmt stmt);
-	T VisitIfStmt(IfStmt stmt);
-	T VisitPrintStmt(PrintStmt stmt);
-	T VisitReturnStmt(ReturnStmt stmt);
-	T VisitVarStmt(VarStmt stmt);
-	T VisitWhileStmt(WhileStmt stmt);
+	void VisitBlockStmt(BlockStmt stmt);
+	void VisitClassStmt(ClassStmt stmt);
+	void VisitExpressionStmt(ExpressionStmt stmt);
+	void VisitFunctionStmt(FunctionStmt stmt);
+	void VisitIfStmt(IfStmt stmt);
+	void VisitPrintStmt(PrintStmt stmt);
+	void VisitReturnStmt(ReturnStmt stmt);
+	void VisitVarStmt(VarStmt stmt);
+	void VisitWhileStmt(WhileStmt stmt);
 }

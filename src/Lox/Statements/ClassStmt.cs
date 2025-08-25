@@ -5,8 +5,8 @@ namespace Lox.Statements;
 
 public record ClassStmt(Token Name, VariableExpr SuperClass, IList<FunctionStmt> Methods) : Stmt
 {
-	public override T Accept<T>(IStmtVisitor<T> visitor)
+	public override void Accept(IStmtVisitor visitor)
 	{
-		return visitor.VisitClassStmt(this);
+		visitor.VisitClassStmt(this);
 	}
 }

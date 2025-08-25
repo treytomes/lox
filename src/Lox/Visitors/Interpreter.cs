@@ -30,49 +30,64 @@ public class Interpreter : IInterpreter
 		return expr.Accept(this);
 	}
 
+	public void Interpret(IList<Stmt> statements)
+	{
+		foreach (var statement in statements)
+		{
+			Execute(statement);
+		}
+	}
+
+	private void Execute(Stmt stmt)
+	{
+		stmt.Accept(this);
+	}
+
 	#region Statement Visitors
 
-	public object? VisitBlockStmt(BlockStmt stmt)
+	public void VisitBlockStmt(BlockStmt stmt)
 	{
 		throw new NotImplementedException();
 	}
 
-	public object? VisitClassStmt(ClassStmt stmt)
+	public void VisitClassStmt(ClassStmt stmt)
 	{
 		throw new NotImplementedException();
 	}
 
-	public object? VisitExpressionStmt(ExpressionStmt stmt)
+	public void VisitExpressionStmt(ExpressionStmt stmt)
 	{
-		return Evaluate(stmt.Expression);
+		Evaluate(stmt.Expression);
 	}
 
-	public object? VisitFunctionStmt(FunctionStmt stmt)
-	{
-		throw new NotImplementedException();
-	}
-
-	public object? VisitIfStmt(IfStmt stmt)
+	public void VisitFunctionStmt(FunctionStmt stmt)
 	{
 		throw new NotImplementedException();
 	}
 
-	public object? VisitPrintStmt(PrintStmt stmt)
+	public void VisitIfStmt(IfStmt stmt)
 	{
 		throw new NotImplementedException();
 	}
 
-	public object? VisitReturnStmt(ReturnStmt stmt)
+	public void VisitPrintStmt(PrintStmt stmt)
+	{
+		var value = Evaluate(stmt.Expression);
+		// TODO: Inject the console output stream.
+		Console.WriteLine(value.Stringify());
+	}
+
+	public void VisitReturnStmt(ReturnStmt stmt)
 	{
 		throw new NotImplementedException();
 	}
 
-	public object? VisitVarStmt(VarStmt stmt)
+	public void VisitVarStmt(VarStmt stmt)
 	{
 		throw new NotImplementedException();
 	}
 
-	public object? VisitWhileStmt(WhileStmt stmt)
+	public void VisitWhileStmt(WhileStmt stmt)
 	{
 		throw new NotImplementedException();
 	}

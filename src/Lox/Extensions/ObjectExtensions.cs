@@ -21,4 +21,26 @@ static class ObjectExtensions
 
 		return a.Equals(b);
 	}
+
+	public static string Stringify(this object? @this)
+	{
+		if (@this == null) return "nil";
+
+		if (@this is double)
+		{
+			var text = @this.ToString();
+			if (text == null) throw new NullReferenceException("This shouldn't have happened.");
+			if (text.EndsWith(".0"))
+			{
+				text = text.Substring(0, text.Length - 2);
+			}
+			return text;
+		}
+		else if (@this is string)
+		{
+			return $"\"{@this}\"";
+		}
+
+		return @this.ToString() ?? string.Empty;
+	}
 }

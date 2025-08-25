@@ -5,8 +5,8 @@ namespace Lox.Statements;
 
 public record ReturnStmt(Token Keyword, Expr Value) : Stmt
 {
-	public override T Accept<T>(IStmtVisitor<T> visitor)
+	public override void Accept(IStmtVisitor visitor)
 	{
-		return visitor.VisitReturnStmt(this);
+		visitor.VisitReturnStmt(this);
 	}
 }

@@ -5,8 +5,8 @@ namespace Lox.Statements;
 
 public record PrintStmt(Expr Expression) : Stmt
 {
-	public override T Accept<T>(IStmtVisitor<T> visitor)
+	public override void Accept(IStmtVisitor visitor)
 	{
-		return visitor.VisitPrintStmt(this);
+		visitor.VisitPrintStmt(this);
 	}
 }

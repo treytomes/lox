@@ -44,41 +44,18 @@ public class Lox : ILox
 	{
 		var sourceText = await source.GetSourceAsync();
 		var tokens = _scanner.ScanTokens(sourceText);
-		var expr = _parser.Parse(tokens);
-		if (expr != null)
+		var stmts = _parser.Parse(tokens);
+		if (stmts != null)
 		{
 			try
 			{
-				var value = _interpreter.Evaluate(expr);
-				Console.WriteLine(Stringify(value));
+				_interpreter.Interpret(stmts);
 			}
 			catch (RuntimeException ex)
 			{
 				_errorReporter.RuntimeError(ex);
 			}
 		}
-	}
-
-	private string Stringify(object? obj)
-	{
-		if (obj == null) return "nil";
-
-		if (obj is double)
-		{
-			var text = obj.ToString();
-			if (text == null) throw new NullReferenceException("This shouldn't have happened.");
-			if (text.EndsWith(".0"))
-			{
-				text = text.Substring(0, text.Length - 2);
-			}
-			return text;
-		}
-		else if (obj is string)
-		{
-			return $"\"{obj}\"";
-		}
-
-		return obj.ToString() ?? string.Empty;
 	}
 
 	#endregion

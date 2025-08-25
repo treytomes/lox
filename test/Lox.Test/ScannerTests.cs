@@ -4,6 +4,7 @@ namespace Lox.Test;
 
 public class ScannerTests
 {
+	[Fact]
 	public void CanScanSourceTextIntoTokens()
 	{
 		var errorReporter = new TestErrorReporter();
@@ -21,6 +22,7 @@ public class ScannerTests
 			new Token(TokenType.LEFT_PAREN, "(", null, 0),
 			new Token(TokenType.NUMBER, "45.67", 45.67, 0),
 			new Token(TokenType.RIGHT_PAREN, ")", null, 0),
+			new Token(TokenType.EOF, string.Empty, null, 0),
 		];
 
 		Assert.Equal(expectedTokens, actualTokens);

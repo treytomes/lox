@@ -5,8 +5,8 @@ namespace Lox.Statements;
 
 public record VarStmt(Token Name, Expr Initializer) : Stmt
 {
-	public override T Accept<T>(IStmtVisitor<T> visitor)
+	public override void Accept(IStmtVisitor visitor)
 	{
-		return visitor.VisitVarStmt(this);
+		visitor.VisitVarStmt(this);
 	}
 }

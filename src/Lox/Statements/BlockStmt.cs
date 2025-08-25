@@ -4,8 +4,8 @@ namespace Lox.Statements;
 
 public record BlockStmt(IList<Stmt> Statements) : Stmt
 {
-	public override T Accept<T>(IStmtVisitor<T> visitor)
+	public override void Accept(IStmtVisitor visitor)
 	{
-		return visitor.VisitBlockStmt(this);
+		visitor.VisitBlockStmt(this);
 	}
 }

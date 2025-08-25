@@ -5,8 +5,8 @@ namespace Lox.Statements;
 
 public record ExpressionStmt(Expr Expression) : Stmt
 {
-	public override T Accept<T>(IStmtVisitor<T> visitor)
+	public override void Accept(IStmtVisitor visitor)
 	{
-		return visitor.VisitExpressionStmt(this);
+		visitor.VisitExpressionStmt(this);
 	}
 }

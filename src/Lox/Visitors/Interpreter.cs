@@ -1,6 +1,7 @@
 using Lox.Exceptions;
 using Lox.Expressions;
 using Lox.Reporting;
+using Lox.Statements;
 
 namespace Lox.Visitors;
 
@@ -28,6 +29,57 @@ public class Interpreter : IInterpreter
 	{
 		return expr.Accept(this);
 	}
+
+	#region Statement Visitors
+
+	public object? VisitBlockStmt(BlockStmt stmt)
+	{
+		throw new NotImplementedException();
+	}
+
+	public object? VisitClassStmt(ClassStmt stmt)
+	{
+		throw new NotImplementedException();
+	}
+
+	public object? VisitExpressionStmt(ExpressionStmt stmt)
+	{
+		return Evaluate(stmt.Expression);
+	}
+
+	public object? VisitFunctionStmt(FunctionStmt stmt)
+	{
+		throw new NotImplementedException();
+	}
+
+	public object? VisitIfStmt(IfStmt stmt)
+	{
+		throw new NotImplementedException();
+	}
+
+	public object? VisitPrintStmt(PrintStmt stmt)
+	{
+		throw new NotImplementedException();
+	}
+
+	public object? VisitReturnStmt(ReturnStmt stmt)
+	{
+		throw new NotImplementedException();
+	}
+
+	public object? VisitVarStmt(VarStmt stmt)
+	{
+		throw new NotImplementedException();
+	}
+
+	public object? VisitWhileStmt(WhileStmt stmt)
+	{
+		throw new NotImplementedException();
+	}
+
+	#endregion
+
+	#region Expression Visitors
 
 	public object? VisitAssignExpr(AssignExpr expr)
 	{
@@ -155,6 +207,10 @@ public class Interpreter : IInterpreter
 		throw new NotImplementedException();
 	}
 
+	#endregion
+
+	#region Helpers
+
 	private void CheckNumberOperand(Token op, object operand)
 	{
 		if (operand is double) return;
@@ -166,6 +222,8 @@ public class Interpreter : IInterpreter
 		if (operands.All(x => x is double)) return;
 		throw new RuntimeException(op, "Operands must be numbers.");
 	}
+
+	#endregion
 
 	#endregion
 }

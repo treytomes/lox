@@ -1,8 +1,8 @@
-using Lox.Expressions;
+using Lox.Statements;
 
 namespace Lox.Parsing;
 
 public interface IParser
 {
-	Expr? Parse(IEnumerable<Token> tokens);
+	IList<Stmt>? Parse(IEnumerable<Token> tokens);
 }

@@ -1,6 +1,7 @@
 using Lox.Exceptions;
 using Lox.Expressions;
 using Lox.Reporting;
+using Lox.Statements;
 
 namespace Lox.Parsing;
 
@@ -28,17 +29,43 @@ public class Parser : IParser
 	#region Methods
 
 	/// <returns>Null if there was a parsing exception.  Not sure if that's the best idea though.</returns>
-	public Expr? Parse(IEnumerable<Token> tokens)
+	public IList<Stmt>? Parse(IEnumerable<Token> tokens)
 	{
 		try
 		{
+			List<Stmt> statements = new();
 			_cursor.ResetCursor(tokens);
-			return Expression();
+			while (!_cursor.IsAtEnd)
+			{
+				statements.Add(Statement());
+			}
+			return statements;
 		}
 		catch (ParseException)
 		{
 			return null;
 		}
+	}
+
+	private Stmt Statement()
+	{
+		if (_cursor.Match(TokenType.PRINT)) return PrintStatement();
+
+		return ExpressionStatement();
+	}
+
+	private Stmt PrintStatement()
+	{
+		var value = Expression();
+		Consume(TokenType.SEMICOLON, "Expect ';' after value.");
+		return new PrintStmt(value);
+	}
+
+	private Stmt ExpressionStatement()
+	{
+		var expr = Expression();
+		Consume(TokenType.SEMICOLON, "Expect ';' after expression.");
+		return new ExpressionStmt(expr);
 	}
 
 	private Expr Expression()

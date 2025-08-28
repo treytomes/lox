@@ -84,6 +84,7 @@ public class Parser : IParser
 	{
 		if (_cursor.Match(TokenType.IF)) return IfStatement();
 		if (_cursor.Match(TokenType.PRINT)) return PrintStatement();
+		if (_cursor.Match(TokenType.WHILE)) return WhileStatement();
 		if (_cursor.Match(TokenType.LEFT_BRACE)) return new BlockStmt(Block());
 
 		return ExpressionStatement();
@@ -110,6 +111,15 @@ public class Parser : IParser
 		var value = Expression();
 		Consume(TokenType.SEMICOLON, "Expect ';' after value.");
 		return new PrintStmt(value);
+	}
+
+	private Stmt WhileStatement()
+	{
+		Consume(TokenType.LEFT_PAREN, "Expect '(' after 'while'.");
+		var condition = Expression();
+		Consume(TokenType.RIGHT_PAREN, "Expect ')' after condition.");
+		var body = Statement();
+		return new WhileStmt(condition, body);
 	}
 
 	private List<Stmt> Block()

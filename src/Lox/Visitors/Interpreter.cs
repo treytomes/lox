@@ -122,7 +122,10 @@ public class Interpreter : IInterpreter
 
 	public void VisitWhileStmt(WhileStmt stmt)
 	{
-		throw new NotImplementedException();
+		while (Evaluate(stmt.Condition).IsTruthy())
+		{
+			Execute(stmt.Body);
+		}
 	}
 
 	#endregion

@@ -101,4 +101,120 @@ public class InterpreterTests
 		Assert.Equal("15", writer.Lines[6]);
 		Assert.Equal("12", writer.Lines[7]);
 	}
+
+	[Fact]
+	public void CanExecuteConditionalIfStatements()
+	{
+		// Given
+		var env = new Environment();
+		var errorReporter = new TestErrorReporter();
+		var writer = new TestOutputWriter();
+		var interpreter = new Interpreter(env, writer, errorReporter);
+		var parser = new Parser(new ParserCursor(), errorReporter);
+		var scanner = new Scanner(new ScannerCursor(), errorReporter);
+
+		// When
+		var sourceText = @"
+			var a = 10;
+			if (a <= 10) {
+				print ""A"";
+			} else {
+				print ""B"";
+			}
+			a = 15;
+			if (a < 10) {
+				print ""A"";
+			} else {
+				print ""B"";
+			}
+		";
+
+		// Then
+		var tokens = scanner.ScanTokens(sourceText);
+		var stmts = parser.Parse(tokens);
+		Assert.NotNull(stmts);
+
+		interpreter.Interpret(stmts);
+		Assert.Equal("A", writer.Lines[0]);
+		Assert.Equal("B", writer.Lines[1]);
+	}
+
+	[Fact]
+	public void CanExecuteWhileLoops()
+	{
+		// Given
+		var env = new Environment();
+		var errorReporter = new TestErrorReporter();
+		var writer = new TestOutputWriter();
+		var interpreter = new Interpreter(env, writer, errorReporter);
+		var parser = new Parser(new ParserCursor(), errorReporter);
+		var scanner = new Scanner(new ScannerCursor(), errorReporter);
+
+		// When
+		var sourceText = @"
+			var a = 0;
+			while (a < 10) {
+				print a;
+				a = a + 1;
+			}
+		";
+
+		// Then
+		var tokens = scanner.ScanTokens(sourceText);
+		var stmts = parser.Parse(tokens);
+		Assert.NotNull(stmts);
+
+		interpreter.Interpret(stmts);
+		Assert.Equal("0", writer.Lines[0]);
+		Assert.Equal("1", writer.Lines[1]);
+		Assert.Equal("2", writer.Lines[2]);
+		Assert.Equal("3", writer.Lines[3]);
+		Assert.Equal("4", writer.Lines[4]);
+		Assert.Equal("5", writer.Lines[5]);
+		Assert.Equal("6", writer.Lines[6]);
+		Assert.Equal("7", writer.Lines[7]);
+		Assert.Equal("8", writer.Lines[8]);
+		Assert.Equal("9", writer.Lines[9]);
+	}
+
+	[Fact]
+	public void CanExecuteForLoops()
+	{
+		// Given
+		var env = new Environment();
+		var errorReporter = new TestErrorReporter();
+		var writer = new TestOutputWriter();
+		var interpreter = new Interpreter(env, writer, errorReporter);
+		var parser = new Parser(new ParserCursor(), errorReporter);
+		var scanner = new Scanner(new ScannerCursor(), errorReporter);
+
+		// When
+		var sourceText = @"
+			var a = 0;
+			var temp;
+
+			for (var b = 1; a < 10000; b = temp + b) {
+				print a;
+				temp = a;
+				a = b;
+			}
+		";
+
+		// Then
+		var tokens = scanner.ScanTokens(sourceText);
+		var stmts = parser.Parse(tokens);
+		Assert.NotNull(stmts);
+
+		interpreter.Interpret(stmts);
+		Assert.Equal("0", writer.Lines[0]);
+		Assert.Equal("1", writer.Lines[1]);
+		Assert.Equal("1", writer.Lines[2]);
+		Assert.Equal("2", writer.Lines[3]);
+		Assert.Equal("3", writer.Lines[4]);
+		Assert.Equal("5", writer.Lines[5]);
+		Assert.Equal("8", writer.Lines[6]);
+		Assert.Equal("13", writer.Lines[7]);
+		Assert.Equal("21", writer.Lines[8]);
+		Assert.Equal("34", writer.Lines[9]);
+	}
 }

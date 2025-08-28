@@ -82,12 +82,65 @@ public class Parser : IParser
 
 	private Stmt Statement()
 	{
+		if (_cursor.Match(TokenType.FOR)) return ForStatement();
 		if (_cursor.Match(TokenType.IF)) return IfStatement();
 		if (_cursor.Match(TokenType.PRINT)) return PrintStatement();
 		if (_cursor.Match(TokenType.WHILE)) return WhileStatement();
 		if (_cursor.Match(TokenType.LEFT_BRACE)) return new BlockStmt(Block());
 
 		return ExpressionStatement();
+	}
+
+	private Stmt ForStatement()
+	{
+		Consume(TokenType.LEFT_PAREN, "Expect '(' after 'for'.");
+
+		Stmt? initializer;
+		if (_cursor.Match(TokenType.SEMICOLON))
+		{
+			initializer = null;
+		}
+		else if (_cursor.Match(TokenType.VAR))
+		{
+			initializer = VarDeclaration();
+		}
+		else
+		{
+			initializer = ExpressionStatement();
+		}
+
+
+		Expr? condition = null;
+		if (!_cursor.Check(TokenType.SEMICOLON))
+		{
+			condition = Expression();
+		}
+		Consume(TokenType.SEMICOLON, "Expect ';' after loop condition.");
+
+		Expr? increment = null;
+		if (!_cursor.Check(TokenType.RIGHT_PAREN))
+		{
+			increment = Expression();
+		}
+		Consume(TokenType.RIGHT_PAREN, "Expect ')' after for clauses.");
+		var body = Statement();
+
+		if (increment != null)
+		{
+			body = new BlockStmt([
+				body,
+				new ExpressionStmt(increment),
+			]);
+		}
+
+		if (condition == null) condition = new LiteralExpr(true);
+		body = new WhileStmt(condition, body);
+
+		if (initializer != null)
+		{
+			body = new BlockStmt([initializer, body]);
+		}
+		return body;
 	}
 
 	private Stmt IfStatement()

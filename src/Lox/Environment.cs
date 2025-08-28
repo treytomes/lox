@@ -80,7 +80,7 @@ public class Environment(IEnvironment? enclosing = null) : IEnvironment
 				return _enclosing?.Get(name);
 			}
 
-			throw new RuntimeException(name, $"Variable {name} has not been defined.");
+			throw new RuntimeException(name, $"Variable {name.Lexeme} has not been defined.");
 		}
 
 		return _values[name.Lexeme];

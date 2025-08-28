@@ -101,7 +101,7 @@ public class Interpreter : IInterpreter
 	public void VisitPrintStmt(PrintStmt stmt)
 	{
 		var value = Evaluate(stmt.Expression);
-		_console.WriteLine(value.Stringify());
+		_console.WriteLine(value.Stringify(true));
 	}
 
 	public void VisitReturnStmt(ReturnStmt stmt)

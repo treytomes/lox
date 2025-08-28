@@ -22,7 +22,7 @@ static class ObjectExtensions
 		return a.Equals(b);
 	}
 
-	public static string Stringify(this object? @this)
+	public static string Stringify(this object? @this, bool isPrinting = false)
 	{
 		if (@this == null) return "nil";
 
@@ -38,6 +38,10 @@ static class ObjectExtensions
 		}
 		else if (@this is string)
 		{
+			if (isPrinting)
+			{
+				return @this.ToString() ?? string.Empty;
+			}
 			return $"\"{@this}\"";
 		}
 

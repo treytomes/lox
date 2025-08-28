@@ -9,7 +9,7 @@ public class Interpreter : IInterpreter
 {
 	#region Fields
 
-	private readonly IEnvironment _environment;
+	private IEnvironment _environment;
 	private readonly IOutputWriter _console;
 	private readonly IErrorReporter _errorReporter;
 
@@ -46,11 +46,29 @@ public class Interpreter : IInterpreter
 		stmt.Accept(this);
 	}
 
+	private void ExecuteBlock(IList<Stmt> statements, Environment environment)
+	{
+		var previous = _environment;
+		try
+		{
+			_environment = environment;
+
+			foreach (var statement in statements)
+			{
+				Execute(statement);
+			}
+		}
+		finally
+		{
+			_environment = previous;
+		}
+	}
+
 	#region Statement Visitors
 
 	public void VisitBlockStmt(BlockStmt stmt)
 	{
-		throw new NotImplementedException();
+		ExecuteBlock(stmt.Statements, new Environment(_environment));
 	}
 
 	public void VisitClassStmt(ClassStmt stmt)

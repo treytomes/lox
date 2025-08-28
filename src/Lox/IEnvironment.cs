@@ -2,6 +2,7 @@ namespace Lox;
 
 public interface IEnvironment
 {
+	bool IsDefined(Token name);
 	bool IsDefined(string name);
 	void Define(Token name, object? value = null);
 	void Define(string name, object? value = null);

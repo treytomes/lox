@@ -9,7 +9,7 @@ public class Interpreter : IInterpreter
 {
 	#region Fields
 
-	private IEnvironment _environment;
+	private readonly Stack<IEnvironment> _environments = new();
 	private readonly IOutputWriter _console;
 	private readonly IErrorReporter _errorReporter;
 
@@ -17,12 +17,18 @@ public class Interpreter : IInterpreter
 
 	#region Constructors
 
-	public Interpreter(IEnvironment environment, IOutputWriter console, IErrorReporter errorReporter)
+	public Interpreter(IOutputWriter console, IErrorReporter errorReporter)
 	{
-		_environment = environment ?? throw new ArgumentNullException(nameof(environment));
+		_environments.Push(new Environment());
 		_console = console ?? throw new ArgumentNullException(nameof(console));
 		_errorReporter = errorReporter ?? throw new ArgumentNullException(nameof(errorReporter));
 	}
+
+	#endregion
+
+	#region Properties
+
+	public IEnvironment CurrentEnvironment => _environments.Peek();
 
 	#endregion
 
@@ -48,10 +54,9 @@ public class Interpreter : IInterpreter
 
 	private void ExecuteBlock(IList<Stmt> statements, Environment environment)
 	{
-		var previous = _environment;
 		try
 		{
-			_environment = environment;
+			_environments.Push(environment);
 
 			foreach (var statement in statements)
 			{
@@ -60,7 +65,7 @@ public class Interpreter : IInterpreter
 		}
 		finally
 		{
-			_environment = previous;
+			_environments.Pop();
 		}
 	}
 
@@ -68,7 +73,7 @@ public class Interpreter : IInterpreter
 
 	public void VisitBlockStmt(BlockStmt stmt)
 	{
-		ExecuteBlock(stmt.Statements, new Environment(_environment));
+		ExecuteBlock(stmt.Statements, new Environment(CurrentEnvironment));
 	}
 
 	public void VisitClassStmt(ClassStmt stmt)
@@ -117,7 +122,7 @@ public class Interpreter : IInterpreter
 			value = Evaluate(stmt.Initializer);
 		}
 
-		_environment.Define(stmt.Name.Lexeme, value);
+		CurrentEnvironment.Define(stmt.Name.Lexeme, value);
 	}
 
 	public void VisitWhileStmt(WhileStmt stmt)
@@ -135,7 +140,7 @@ public class Interpreter : IInterpreter
 	public object? VisitAssignExpr(AssignExpr expr)
 	{
 		var value = Evaluate(expr.Value);
-		_environment.Set(expr.Name, value);
+		CurrentEnvironment.Set(expr.Name, value);
 		return value;
 	}
 
@@ -268,7 +273,7 @@ public class Interpreter : IInterpreter
 
 	public object? VisitVariableExpr(VariableExpr expr)
 	{
-		return _environment.Get(expr.Name);
+		return CurrentEnvironment.Get(expr.Name);
 	}
 
 	#endregion

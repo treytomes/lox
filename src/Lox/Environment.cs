@@ -20,6 +20,16 @@ public class Environment(IEnvironment? enclosing = null) : IEnvironment
 
 	public bool IsDefined(string name)
 	{
+		return IsLocallyDefined(name) || (_enclosing?.IsDefined(name) ?? false);
+	}
+
+	private bool IsLocallyDefined(Token name)
+	{
+		return IsLocallyDefined(name.Lexeme);
+	}
+
+	private bool IsLocallyDefined(string name)
+	{
 		return _values.ContainsKey(name);
 	}
 
@@ -30,7 +40,7 @@ public class Environment(IEnvironment? enclosing = null) : IEnvironment
 
 	public void Define(string name, object? value = null)
 	{
-		if (IsDefined(name))
+		if (IsLocallyDefined(name))
 		{
 			Set(name, value);
 		}
@@ -42,63 +52,60 @@ public class Environment(IEnvironment? enclosing = null) : IEnvironment
 
 	public void Set(Token name, object? value)
 	{
-		if (!IsDefined(name.Lexeme))
+		if (IsLocallyDefined(name))
 		{
-			if (_enclosing?.IsDefined(name) ?? false)
-			{
-				_enclosing?.Set(name, value);
-				return;
-			}
-
+			_values[name.Lexeme] = value;
+		}
+		else if (IsDefined(name.Lexeme))
+		{
+			_enclosing?.Set(name, value);
+		}
+		else
+		{
 			throw new RuntimeException(name, $"Variable {name} has not been defined.");
 		}
-		_values[name.Lexeme] = value;
 	}
 
 	public void Set(string name, object? value)
 	{
-		if (!IsDefined(name))
+		if (IsLocallyDefined(name))
 		{
-			if (_enclosing?.IsDefined(name) ?? false)
-			{
-				_enclosing?.Set(name, value);
-				return;
-			}
-
+			_values[name] = value;
+		}
+		else if (IsDefined(name))
+		{
+			_enclosing?.Set(name, value);
+		}
+		else
+		{
 			throw new ApplicationException($"Variable {name} has not been defined.");
 		}
-
-		_values[name] = value;
 	}
 
 	public object? Get(Token name)
 	{
-		if (!IsDefined(name.Lexeme))
+		if (IsLocallyDefined(name))
 		{
-			if (_enclosing?.IsDefined(name) ?? false)
-			{
-				return _enclosing?.Get(name);
-			}
-
-			throw new RuntimeException(name, $"Variable {name.Lexeme} has not been defined.");
+			return _values[name.Lexeme];
 		}
-
-		return _values[name.Lexeme];
+		else if (IsDefined(name))
+		{
+			return _enclosing?.Get(name);
+		}
+		throw new RuntimeException(name, $"Variable {name.Lexeme} has not been defined.");
 	}
 
 	public object? Get(string name)
 	{
-		if (!IsDefined(name))
+		if (IsLocallyDefined(name))
 		{
-			if (_enclosing?.IsDefined(name) ?? false)
-			{
-				return _enclosing?.Get(name);
-			}
-
-			throw new ApplicationException($"Variable {name} has not been defined.");
+			return _values[name];
 		}
-
-		return _values[name];
+		else if (IsDefined(name))
+		{
+			return _enclosing?.Get(name);
+		}
+		throw new ApplicationException($"Variable {name} has not been defined.");
 	}
 
 	#endregion

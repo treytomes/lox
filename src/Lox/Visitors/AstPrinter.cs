@@ -42,7 +42,7 @@ public class AstPrinter : IExprVisitor<string>
 
 	public string VisitLogicalExpr(LogicalExpr expr)
 	{
-		throw new NotImplementedException();
+		return Parenthesize(expr.Operator.Lexeme, expr.Left, expr.Right);
 	}
 
 	public string VisitSetExpr(SetExpr expr)

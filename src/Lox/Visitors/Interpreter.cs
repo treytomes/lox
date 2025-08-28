@@ -88,7 +88,14 @@ public class Interpreter : IInterpreter
 
 	public void VisitIfStmt(IfStmt stmt)
 	{
-		throw new NotImplementedException();
+		if (Evaluate(stmt.Condition).IsTruthy())
+		{
+			Execute(stmt.ThenBranch);
+		}
+		else if (stmt.ElseBranch != null)
+		{
+			Execute(stmt.ElseBranch);
+		}
 	}
 
 	public void VisitPrintStmt(PrintStmt stmt)
@@ -209,7 +216,18 @@ public class Interpreter : IInterpreter
 
 	public object? VisitLogicalExpr(LogicalExpr expr)
 	{
-		throw new NotImplementedException();
+		var left = Evaluate(expr.Left);
+
+		if (expr.Operator.Type == TokenType.OR)
+		{
+			if (left.IsTruthy()) return left;
+		}
+		else
+		{
+			if (!left.IsTruthy()) return left;
+		}
+
+		return Evaluate(expr.Right);
 	}
 
 	public object? VisitSetExpr(SetExpr expr)

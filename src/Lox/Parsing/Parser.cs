@@ -82,10 +82,27 @@ public class Parser : IParser
 
 	private Stmt Statement()
 	{
+		if (_cursor.Match(TokenType.IF)) return IfStatement();
 		if (_cursor.Match(TokenType.PRINT)) return PrintStatement();
 		if (_cursor.Match(TokenType.LEFT_BRACE)) return new BlockStmt(Block());
 
 		return ExpressionStatement();
+	}
+
+	private Stmt IfStatement()
+	{
+		Consume(TokenType.LEFT_PAREN, "Expect '(' after 'if'.");
+		var condition = Expression();
+		Consume(TokenType.RIGHT_PAREN, "Expect ')' after if condition.");
+
+		var thenBranch = Statement();
+		var elseBranch = (Stmt?)null;
+		if (_cursor.Match(TokenType.ELSE))
+		{
+			elseBranch = Statement();
+		}
+
+		return new IfStmt(condition, thenBranch, elseBranch);
 	}
 
 	private Stmt PrintStatement()
@@ -126,7 +143,7 @@ public class Parser : IParser
 
 	private Expr Assignment()
 	{
-		var expr = Equality();
+		var expr = Or();
 
 		if (_cursor.Match(TokenType.EQUAL))
 		{
@@ -140,6 +157,34 @@ public class Parser : IParser
 			}
 
 			_errorReporter.Error(equals, "Invalid assignment target.");
+		}
+
+		return expr;
+	}
+
+	private Expr Or()
+	{
+		var expr = And();
+
+		while (_cursor.Match(TokenType.OR))
+		{
+			var op = _cursor.Previous();
+			var right = And();
+			expr = new LogicalExpr(expr, op, right);
+		}
+
+		return expr;
+	}
+
+	private Expr And()
+	{
+		var expr = Equality();
+
+		while (_cursor.Match(TokenType.AND))
+		{
+			var op = _cursor.Previous();
+			var right = Equality();
+			expr = new LogicalExpr(expr, op, right);
 		}
 
 		return expr;

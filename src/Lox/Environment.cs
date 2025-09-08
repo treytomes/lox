@@ -62,7 +62,7 @@ public class Environment(IEnvironment? enclosing = null) : IEnvironment
 		}
 		else
 		{
-			throw new RuntimeException(name, $"Variable {name} has not been defined.");
+			throw new RuntimeException(name, $"Variable {name.Lexeme} has not been defined.");
 		}
 	}
 

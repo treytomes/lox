@@ -100,6 +100,12 @@ public class Scanner : IScanner
 				{
 					// A block comment goes until the end of the block comment marker.
 					while (_cursor.Peek() != '*' && _cursor.PeekNext() != '/') _cursor.Advance();
+
+					var foundEndMarker = _cursor.Match('*') && _cursor.Match('/');
+					if (!foundEndMarker)
+					{
+						_errorReporter.Error(_cursor.Line, "Expected close of block comment.");
+					}
 				}
 				else
 				{

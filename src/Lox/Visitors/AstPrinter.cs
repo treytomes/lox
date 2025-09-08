@@ -35,6 +35,11 @@ public class AstPrinter : IExprVisitor<string>
 		return Parenthesize("group", expr.Expression);
 	}
 
+	public string VisitListExpr(ListExpr expr)
+	{
+		return Parenthesize(string.Empty, expr.Left, expr.Right);
+	}
+
 	public string VisitLiteralExpr(LiteralExpr expr)
 	{
 		return expr.Value?.ToString() ?? "nil";
@@ -74,12 +79,13 @@ public class AstPrinter : IExprVisitor<string>
 	{
 		var builder = new StringBuilder();
 
-		builder.Append("(").Append(name);
-		foreach (var expr in exprs)
+		builder.Append("(");
+		if (!string.IsNullOrWhiteSpace(name))
 		{
-			builder.Append(" ");
-			builder.Append(expr.Accept(this));
+			builder.Append(name).Append(" ");
 		}
+
+		builder.Append(string.Join(" ", exprs.Select(x => x.Accept(this))));
 		builder.Append(")");
 
 		return builder.ToString();

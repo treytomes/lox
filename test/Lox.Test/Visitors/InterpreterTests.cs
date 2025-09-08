@@ -248,4 +248,25 @@ public class InterpreterTests
 		Assert.Equal("21", writer.Lines[8]);
 		Assert.Equal("34", writer.Lines[9]);
 	}
+
+	[Fact]
+	public void ExpressionListsShouldReturnRightmostResult()
+	{
+		var sourceText = @"
+			var hey = 17;
+			print (1,2,3,4,hey);
+		";
+
+		var errorReporter = new TestErrorReporter();
+		var scanner = new Scanner(new ScannerCursor(), errorReporter);
+		var parser = new Parser(new ParserCursor(), errorReporter);
+		var writer = new TestOutputWriter();
+		var interpreter = new Interpreter(writer, errorReporter);
+
+		var tokens = scanner.ScanTokens(sourceText);
+		var stmts = parser.Parse(tokens);
+		Assert.NotNull(stmts);
+		interpreter.Interpret(stmts);
+		Assert.Equal("17", writer.Lines[0]);
+	}
 }

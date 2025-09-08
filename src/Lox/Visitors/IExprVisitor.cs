@@ -9,6 +9,7 @@ public interface IExprVisitor<T>
 	T VisitCallExpr(CallExpr expr);
 	T VisitGetExpr(GetExpr expr);
 	T VisitGroupingExpr(GroupingExpr expr);
+	T VisitListExpr(ListExpr expr);
 	T VisitLiteralExpr(LiteralExpr expr);
 	T VisitLogicalExpr(LogicalExpr expr);
 	T VisitSetExpr(SetExpr expr);

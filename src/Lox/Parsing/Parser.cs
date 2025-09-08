@@ -201,7 +201,20 @@ public class Parser : IParser
 
 	private Expr Expression()
 	{
-		return Assignment();
+		return ExpressionList();
+	}
+
+	private Expr ExpressionList()
+	{
+		var expr = Assignment();
+
+		while (_cursor.Match(TokenType.COMMA))
+		{
+			var right = Assignment();
+			expr = new ListExpr(expr, right);
+		}
+
+		return expr;
 	}
 
 	private Expr Assignment()

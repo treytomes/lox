@@ -217,6 +217,12 @@ public class Interpreter : IInterpreter
 		return Evaluate(expr.Expression);
 	}
 
+	public object? VisitListExpr(ListExpr expr)
+	{
+		Evaluate(expr.Left);
+		return Evaluate(expr.Right);
+	}
+
 	public object? VisitLiteralExpr(LiteralExpr expr)
 	{
 		return expr.Value;

@@ -10,5 +10,4 @@ public interface IInterpreter : IExprVisitor<object?>, IStmtVisitor
 
 	object? Evaluate(Expr expr);
 	void Interpret(IList<Stmt> statements);
-	void ResetLastResult();
 }

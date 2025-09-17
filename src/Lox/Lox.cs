@@ -64,10 +64,5 @@ public class Lox : ILox
 		}
 	}
 
-	public void ResetLastResult()
-	{
-		_interpreter.ResetLastResult();
-	}
-
 	#endregion
 }

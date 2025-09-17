@@ -45,7 +45,6 @@ public class RunPromptAppState : IAppState
 			{
 				Console.WriteLine(_lox.LastResult);
 			}
-			_lox.ResetLastResult();
 			_errorReporter.ResetErrorFlags();
 		}
 	}

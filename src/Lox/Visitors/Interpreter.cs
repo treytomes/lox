@@ -7,6 +7,12 @@ namespace Lox.Visitors;
 
 public class Interpreter : IInterpreter
 {
+	#region Constants
+
+	private const string LAST_RESULT_NAME = "_";
+
+	#endregion
+
 	#region Fields
 
 	private readonly Stack<IEnvironment> _environments = new();
@@ -42,15 +48,17 @@ public class Interpreter : IInterpreter
 
 	public void Interpret(IList<Stmt> statements)
 	{
-		foreach (var statement in statements)
+		if (statements.Any())
 		{
-			Execute(statement);
+			foreach (var statement in statements)
+			{
+				Execute(statement);
+			}
 		}
-	}
-
-	public void ResetLastResult()
-	{
-		LastResult = null;
+		else
+		{
+			LastResult = null;
+		}
 	}
 
 	private void Execute(Stmt stmt)
@@ -80,6 +88,7 @@ public class Interpreter : IInterpreter
 	public void VisitBlockStmt(BlockStmt stmt)
 	{
 		ExecuteBlock(stmt.Statements, new Environment(CurrentEnvironment));
+		LastResult = null;
 	}
 
 	public void VisitClassStmt(ClassStmt stmt)
@@ -107,12 +116,14 @@ public class Interpreter : IInterpreter
 		{
 			Execute(stmt.ElseBranch);
 		}
+		LastResult = null;
 	}
 
 	public void VisitPrintStmt(PrintStmt stmt)
 	{
 		var value = Evaluate(stmt.Expression);
 		_console.WriteLine(value.Stringify(true));
+		LastResult = null;
 	}
 
 	public void VisitReturnStmt(ReturnStmt stmt)
@@ -129,6 +140,7 @@ public class Interpreter : IInterpreter
 		}
 
 		CurrentEnvironment.Define(stmt.Name.Lexeme, value);
+		LastResult = null;
 	}
 
 	public void VisitWhileStmt(WhileStmt stmt)
@@ -137,6 +149,7 @@ public class Interpreter : IInterpreter
 		{
 			Execute(stmt.Body);
 		}
+		LastResult = null;
 	}
 
 	#endregion
@@ -285,6 +298,10 @@ public class Interpreter : IInterpreter
 
 	public object? VisitVariableExpr(VariableExpr expr)
 	{
+		if (expr.Name.Lexeme == LAST_RESULT_NAME)
+		{
+			return LastResult;
+		}
 		return CurrentEnvironment.Get(expr.Name);
 	}
 

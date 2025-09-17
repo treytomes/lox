@@ -25,8 +25,13 @@ public class ParserCursor : IParserCursor
 
 	public bool Check(TokenType type)
 	{
-		if (IsAtEnd) return false;
-		return Peek().Type == type;
+		return Check([type]);
+	}
+
+	public bool Check(TokenType[] types)
+	{
+		// if (IsAtEnd) return false;
+		return types.Contains(Peek().Type);
 	}
 
 	public bool Match(params TokenType[] types)

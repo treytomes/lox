@@ -76,7 +76,7 @@ public class Parser : IParser
 			initializer = Expression();
 		}
 
-		Consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.");
+		Consume([TokenType.SEMICOLON, TokenType.EOF], "Expect ';' after variable declaration.");
 		return new VarStmt(name, initializer);
 	}
 
@@ -162,7 +162,7 @@ public class Parser : IParser
 	private Stmt PrintStatement()
 	{
 		var value = Expression();
-		Consume(TokenType.SEMICOLON, "Expect ';' after value.");
+		Consume([TokenType.SEMICOLON, TokenType.EOF], "Expect ';' after value.");
 		return new PrintStmt(value);
 	}
 
@@ -195,7 +195,7 @@ public class Parser : IParser
 	private Stmt ExpressionStatement()
 	{
 		var expr = Expression();
-		Consume(TokenType.SEMICOLON, "Expect ';' after expression.");
+		Consume([TokenType.SEMICOLON, TokenType.EOF], "Expect ';' after expression.");
 		return new ExpressionStmt(expr);
 	}
 
@@ -360,9 +360,11 @@ public class Parser : IParser
 		throw Error(_cursor.Peek(), "Expect expression.");
 	}
 
-	private Token Consume(TokenType type, string message)
+	private Token Consume(TokenType type, string message) => Consume([type], message);
+
+	private Token Consume(TokenType[] types, string message)
 	{
-		if (_cursor.Check(type)) return _cursor.Advance();
+		if (_cursor.Check(types)) return _cursor.Advance();
 
 		throw Error(_cursor.Peek(), message);
 	}

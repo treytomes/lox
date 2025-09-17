@@ -316,4 +316,28 @@ public class InterpreterTests
 		Assert.IsType<double>(interpreter.LastResult);
 		Assert.Equal(31, Convert.ToDouble(interpreter.LastResult));
 	}
+
+	[Fact]
+	public void FinalStatementDoesNotRequireSemicolon()
+	{
+		var sourceText = @"
+			print ""1"";
+			print ""2"";
+			print ""3"";
+			3*12-5
+		";
+
+		var errorReporter = new TestErrorReporter();
+		var scanner = new Scanner(new ScannerCursor(), errorReporter);
+		var parser = new Parser(new ParserCursor(), errorReporter);
+		var writer = new TestOutputWriter();
+		var interpreter = new Interpreter(writer, errorReporter);
+
+		var tokens = scanner.ScanTokens(sourceText);
+		var stmts = parser.Parse(tokens);
+		Assert.NotNull(stmts);
+		interpreter.Interpret(stmts);
+		Assert.IsType<double>(interpreter.LastResult);
+		Assert.Equal(31, Convert.ToDouble(interpreter.LastResult));
+	}
 }

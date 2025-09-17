@@ -38,6 +38,12 @@ public class Lox : ILox
 
 	#endregion
 
+	#region Properties
+
+	public object? LastResult => _interpreter.LastResult;
+
+	#endregion
+
 	#region Methods
 
 	public async Task RunAsync(IExecutionSource source)
@@ -56,6 +62,11 @@ public class Lox : ILox
 				_errorReporter.RuntimeError(ex);
 			}
 		}
+	}
+
+	public void ResetLastResult()
+	{
+		_interpreter.ResetLastResult();
 	}
 
 	#endregion

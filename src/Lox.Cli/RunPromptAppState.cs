@@ -41,6 +41,11 @@ public class RunPromptAppState : IAppState
 				break;
 			}
 			await _lox.RunAsync(new ImmediateExecutionSource(sourceText));
+			if (_lox.LastResult != null)
+			{
+				Console.WriteLine(_lox.LastResult);
+			}
+			_lox.ResetLastResult();
 			_errorReporter.ResetErrorFlags();
 		}
 	}

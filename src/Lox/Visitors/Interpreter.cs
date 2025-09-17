@@ -29,6 +29,7 @@ public class Interpreter : IInterpreter
 	#region Properties
 
 	public IEnvironment CurrentEnvironment => _environments.Peek();
+	public object? LastResult { get; private set; } = null;
 
 	#endregion
 
@@ -45,6 +46,11 @@ public class Interpreter : IInterpreter
 		{
 			Execute(statement);
 		}
+	}
+
+	public void ResetLastResult()
+	{
+		LastResult = null;
 	}
 
 	private void Execute(Stmt stmt)
@@ -83,7 +89,7 @@ public class Interpreter : IInterpreter
 
 	public void VisitExpressionStmt(ExpressionStmt stmt)
 	{
-		Evaluate(stmt.Expression);
+		LastResult = Evaluate(stmt.Expression);
 	}
 
 	public void VisitFunctionStmt(FunctionStmt stmt)

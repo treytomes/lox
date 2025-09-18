@@ -1,8 +1,7 @@
 using Lox.Exceptions;
-using Lox.Expressions;
 using Lox.Reporting;
 
-namespace Lox.Visitors;
+namespace Lox.Interpreting;
 
 public class Interpreter : IInterpreter
 {
@@ -42,7 +41,23 @@ public class Interpreter : IInterpreter
 
 	public object? Evaluate(Expr expr)
 	{
-		return expr.Accept(this);
+		return expr switch
+		{
+			AssignExpr e => VisitAssignExpr(e),
+			BinaryExpr e => VisitBinaryExpr(e),
+			CallExpr e => VisitCallExpr(e),
+			GetExpr e => VisitGetExpr(e),
+			GroupingExpr e => VisitGroupingExpr(e),
+			ListExpr e => VisitListExpr(e),
+			LiteralExpr e => VisitLiteralExpr(e),
+			LogicalExpr e => VisitLogicalExpr(e),
+			SetExpr e => VisitSetExpr(e),
+			SuperExpr e => VisitSuperExpr(e),
+			ThisExpr e => VisitThisExpr(e),
+			UnaryExpr e => VisitUnaryExpr(e),
+			VariableExpr e => VisitVariableExpr(e),
+			_ => throw new NotImplementedException($"Expression type {expr.GetType()} is not implemented.")
+		};
 	}
 
 	public void Interpret(IList<Stmt> statements)
@@ -70,7 +85,7 @@ public class Interpreter : IInterpreter
 			PrintStmt s => VisitPrintStmt(s),
 			VarStmt s => VisitVarStmt(s),
 			WhileStmt s => VisitWhileStmt(s),
-			_ => throw new NotImplementedException($"Statement type {stmt.GetType()} not implemented")
+			_ => throw new NotImplementedException($"Statement type {stmt.GetType()} is not implemented.")
 		};
 	}
 

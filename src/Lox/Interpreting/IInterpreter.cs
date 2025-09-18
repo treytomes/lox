@@ -1,8 +1,6 @@
-using Lox.Expressions;
+namespace Lox.Interpreting;
 
-namespace Lox.Visitors;
-
-public interface IInterpreter : IExprVisitor<object?>
+public interface IInterpreter
 {
 	IEnvironment CurrentEnvironment { get; }
 	object? LastResult { get; }

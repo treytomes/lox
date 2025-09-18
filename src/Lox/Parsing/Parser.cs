@@ -1,5 +1,4 @@
 using Lox.Exceptions;
-using Lox.Expressions;
 using Lox.Reporting;
 
 namespace Lox.Parsing;

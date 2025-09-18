@@ -1,9 +1,6 @@
-﻿using Lox.Expressions;
-using Lox.Visitors;
+﻿namespace Lox.Test.Extensions;
 
-namespace Lox.Test.Visitors;
-
-public class AstPrinterTests
+public class ExprExtensionsTests
 {
 	[Fact]
 	public void CanGenerateAst()
@@ -17,7 +14,7 @@ public class AstPrinterTests
 					new LiteralExpr(45.67)));
 
 		var expected = "(* (- 123) (group 45.67))";
-		var actual = new AstPrinter().ToString(expression);
+		var actual = expression.ToLispString();
 		Assert.Equal(expected, actual);
 	}
 }

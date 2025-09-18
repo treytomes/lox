@@ -1,9 +1,3 @@
-using Lox.Parsing;
-using Lox.Scanning;
-using Lox.Statements;
-using Lox.Text;
-using Lox.Visitors;
-
 namespace Lox.Test.Visitors;
 
 public class InterpreterTests
@@ -12,13 +6,11 @@ public class InterpreterTests
 	public void CanConcatenateStrings()
 	{
 		var sourceText = "\"Hello\" + \" \" + \"world!\";";
-		var errorReporter = new TestErrorReporter();
-		var writer = new TestOutputWriter();
-		var interpreter = new Interpreter(writer, errorReporter);
-		var parser = new Parser(new ParserCursor(), errorReporter);
-		var scanner = new Scanner(new ScannerCursor(), errorReporter);
-		var tokens = scanner.ScanTokens(sourceText);
-		var stmts = parser.Parse(tokens);
+
+		var fixture = new TestFixture();
+
+		var tokens = fixture.Scanner.ScanTokens(sourceText);
+		var stmts = fixture.Parser.Parse(tokens);
 		Assert.NotNull(stmts);
 		Assert.Single(stmts);
 		Assert.IsType<ExpressionStmt>(stmts.Single());
@@ -26,7 +18,7 @@ public class InterpreterTests
 		var expr = (stmts.Single() as ExpressionStmt)!.Expression;
 
 		var expectedResult = "Hello world!";
-		var actualResult = interpreter.Evaluate(expr);
+		var actualResult = fixture.Interpreter.Evaluate(expr);
 		Assert.Equal(expectedResult, actualResult);
 	}
 
@@ -34,17 +26,15 @@ public class InterpreterTests
 	public void CanAssignVariables()
 	{
 		var sourceText = "var b = 5;";
-		var errorReporter = new TestErrorReporter();
-		var writer = new TestOutputWriter();
-		var interpreter = new Interpreter(writer, errorReporter);
-		var parser = new Parser(new ParserCursor(), errorReporter);
-		var scanner = new Scanner(new ScannerCursor(), errorReporter);
-		var tokens = scanner.ScanTokens(sourceText);
-		var stmts = parser.Parse(tokens);
+
+		var fixture = new TestFixture();
+
+		var tokens = fixture.Scanner.ScanTokens(sourceText);
+		var stmts = fixture.Parser.Parse(tokens);
 		Assert.NotNull(stmts);
 
-		interpreter.Interpret(stmts);
-		var env = interpreter.CurrentEnvironment;
+		fixture.Interpreter.Interpret(stmts);
+		var env = fixture.Interpreter.CurrentEnvironment;
 		Assert.IsType<double>(env.Get("b"));
 		Assert.Equal(5, Convert.ToDouble(env.Get("b")));
 	}
@@ -53,11 +43,7 @@ public class InterpreterTests
 	public void CanMaintainScope()
 	{
 		// Given
-		var errorReporter = new TestErrorReporter();
-		var writer = new TestOutputWriter();
-		var interpreter = new Interpreter(writer, errorReporter);
-		var parser = new Parser(new ParserCursor(), errorReporter);
-		var scanner = new Scanner(new ScannerCursor(), errorReporter);
+		var fixture = new TestFixture();
 
 		// When
 		var sourceText = @"
@@ -83,33 +69,29 @@ public class InterpreterTests
 		";
 
 		// Then
-		var tokens = scanner.ScanTokens(sourceText);
-		var stmts = parser.Parse(tokens);
+		var tokens = fixture.Scanner.ScanTokens(sourceText);
+		var stmts = fixture.Parser.Parse(tokens);
 		Assert.NotNull(stmts);
 
-		interpreter.Interpret(stmts);
-		var env = interpreter.CurrentEnvironment;
+		fixture.Interpreter.Interpret(stmts);
+		var env = fixture.Interpreter.CurrentEnvironment;
 		Assert.IsType<double>(env.Get("a"));
 		Assert.Equal(12, Convert.ToDouble(env.Get("a")));
-		Assert.Equal("10", writer.Lines[0]);
-		Assert.Equal("15", writer.Lines[1]);
-		Assert.Equal("20", writer.Lines[2]);
-		Assert.Equal("13", writer.Lines[3]);
-		Assert.Equal("18", writer.Lines[4]);
-		Assert.Equal("13", writer.Lines[5]);
-		Assert.Equal("15", writer.Lines[6]);
-		Assert.Equal("12", writer.Lines[7]);
+		Assert.Equal("10", fixture.Writer.Lines[0]);
+		Assert.Equal("15", fixture.Writer.Lines[1]);
+		Assert.Equal("20", fixture.Writer.Lines[2]);
+		Assert.Equal("13", fixture.Writer.Lines[3]);
+		Assert.Equal("18", fixture.Writer.Lines[4]);
+		Assert.Equal("13", fixture.Writer.Lines[5]);
+		Assert.Equal("15", fixture.Writer.Lines[6]);
+		Assert.Equal("12", fixture.Writer.Lines[7]);
 	}
 
 	[Fact]
 	public void CanExecuteConditionalIfStatements()
 	{
 		// Given
-		var errorReporter = new TestErrorReporter();
-		var writer = new TestOutputWriter();
-		var interpreter = new Interpreter(writer, errorReporter);
-		var parser = new Parser(new ParserCursor(), errorReporter);
-		var scanner = new Scanner(new ScannerCursor(), errorReporter);
+		var fixture = new TestFixture();
 
 		// When
 		var sourceText = @"
@@ -128,24 +110,20 @@ public class InterpreterTests
 		";
 
 		// Then
-		var tokens = scanner.ScanTokens(sourceText);
-		var stmts = parser.Parse(tokens);
+		var tokens = fixture.Scanner.ScanTokens(sourceText);
+		var stmts = fixture.Parser.Parse(tokens);
 		Assert.NotNull(stmts);
 
-		interpreter.Interpret(stmts);
-		Assert.Equal("A", writer.Lines[0]);
-		Assert.Equal("B", writer.Lines[1]);
+		fixture.Interpreter.Interpret(stmts);
+		Assert.Equal("A", fixture.Writer.Lines[0]);
+		Assert.Equal("B", fixture.Writer.Lines[1]);
 	}
 
 	[Fact]
 	public void CanExecuteWhileLoops()
 	{
 		// Given
-		var errorReporter = new TestErrorReporter();
-		var writer = new TestOutputWriter();
-		var interpreter = new Interpreter(writer, errorReporter);
-		var parser = new Parser(new ParserCursor(), errorReporter);
-		var scanner = new Scanner(new ScannerCursor(), errorReporter);
+		var fixture = new TestFixture();
 
 		// When
 		var sourceText = @"
@@ -157,32 +135,28 @@ public class InterpreterTests
 		";
 
 		// Then
-		var tokens = scanner.ScanTokens(sourceText);
-		var stmts = parser.Parse(tokens);
+		var tokens = fixture.Scanner.ScanTokens(sourceText);
+		var stmts = fixture.Parser.Parse(tokens);
 		Assert.NotNull(stmts);
 
-		interpreter.Interpret(stmts);
-		Assert.Equal("0", writer.Lines[0]);
-		Assert.Equal("1", writer.Lines[1]);
-		Assert.Equal("2", writer.Lines[2]);
-		Assert.Equal("3", writer.Lines[3]);
-		Assert.Equal("4", writer.Lines[4]);
-		Assert.Equal("5", writer.Lines[5]);
-		Assert.Equal("6", writer.Lines[6]);
-		Assert.Equal("7", writer.Lines[7]);
-		Assert.Equal("8", writer.Lines[8]);
-		Assert.Equal("9", writer.Lines[9]);
+		fixture.Interpreter.Interpret(stmts);
+		Assert.Equal("0", fixture.Writer.Lines[0]);
+		Assert.Equal("1", fixture.Writer.Lines[1]);
+		Assert.Equal("2", fixture.Writer.Lines[2]);
+		Assert.Equal("3", fixture.Writer.Lines[3]);
+		Assert.Equal("4", fixture.Writer.Lines[4]);
+		Assert.Equal("5", fixture.Writer.Lines[5]);
+		Assert.Equal("6", fixture.Writer.Lines[6]);
+		Assert.Equal("7", fixture.Writer.Lines[7]);
+		Assert.Equal("8", fixture.Writer.Lines[8]);
+		Assert.Equal("9", fixture.Writer.Lines[9]);
 	}
 
 	[Fact]
 	public void CanLookupGlobalsFromNestedScope()
 	{
 		// Given
-		var errorReporter = new TestErrorReporter();
-		var writer = new TestOutputWriter();
-		var interpreter = new Interpreter(writer, errorReporter);
-		var parser = new Parser(new ParserCursor(), errorReporter);
-		var scanner = new Scanner(new ScannerCursor(), errorReporter);
+		var fixture = new TestFixture();
 
 		// When
 		var sourceText = @"
@@ -195,29 +169,19 @@ public class InterpreterTests
 		";
 
 		// Then
-		var tokens = scanner.ScanTokens(sourceText);
-		var stmts = parser.Parse(tokens);
+		var tokens = fixture.Scanner.ScanTokens(sourceText);
+		var stmts = fixture.Parser.Parse(tokens);
 		Assert.NotNull(stmts);
 
-		interpreter.Interpret(stmts);
-		// Assert.Equal("2", writer.Lines[3]);
-		// Assert.Equal("3", writer.Lines[4]);
-		// Assert.Equal("5", writer.Lines[5]);
-		// Assert.Equal("8", writer.Lines[6]);
-		// Assert.Equal("13", writer.Lines[7]);
-		// Assert.Equal("21", writer.Lines[8]);
-		// Assert.Equal("34", writer.Lines[9]);
+		fixture.Interpreter.Interpret(stmts);
+		Assert.Equal("0", fixture.Writer.Lines[0]);
 	}
 
 	[Fact]
 	public void CanExecuteForLoops()
 	{
 		// Given
-		var errorReporter = new TestErrorReporter();
-		var writer = new TestOutputWriter();
-		var interpreter = new Interpreter(writer, errorReporter);
-		var parser = new Parser(new ParserCursor(), errorReporter);
-		var scanner = new Scanner(new ScannerCursor(), errorReporter);
+		var fixture = new TestFixture();
 
 		// When
 		var sourceText = @"
@@ -232,61 +196,53 @@ public class InterpreterTests
 		";
 
 		// Then
-		var tokens = scanner.ScanTokens(sourceText);
-		var stmts = parser.Parse(tokens);
+		var tokens = fixture.Scanner.ScanTokens(sourceText);
+		var stmts = fixture.Parser.Parse(tokens);
 		Assert.NotNull(stmts);
 
-		interpreter.Interpret(stmts);
-		Assert.Equal("0", writer.Lines[0]);
-		Assert.Equal("1", writer.Lines[1]);
-		Assert.Equal("1", writer.Lines[2]);
-		Assert.Equal("2", writer.Lines[3]);
-		Assert.Equal("3", writer.Lines[4]);
-		Assert.Equal("5", writer.Lines[5]);
-		Assert.Equal("8", writer.Lines[6]);
-		Assert.Equal("13", writer.Lines[7]);
-		Assert.Equal("21", writer.Lines[8]);
-		Assert.Equal("34", writer.Lines[9]);
+		fixture.Interpreter.Interpret(stmts);
+		Assert.Equal("0", fixture.Writer.Lines[0]);
+		Assert.Equal("1", fixture.Writer.Lines[1]);
+		Assert.Equal("1", fixture.Writer.Lines[2]);
+		Assert.Equal("2", fixture.Writer.Lines[3]);
+		Assert.Equal("3", fixture.Writer.Lines[4]);
+		Assert.Equal("5", fixture.Writer.Lines[5]);
+		Assert.Equal("8", fixture.Writer.Lines[6]);
+		Assert.Equal("13", fixture.Writer.Lines[7]);
+		Assert.Equal("21", fixture.Writer.Lines[8]);
+		Assert.Equal("34", fixture.Writer.Lines[9]);
 	}
 
 	[Fact]
 	public void ExpressionListsShouldReturnRightmostResult()
 	{
+		var fixture = new TestFixture();
+
 		var sourceText = @"
 			var hey = 17;
 			print (1,2,3,4,hey);
 		";
 
-		var errorReporter = new TestErrorReporter();
-		var scanner = new Scanner(new ScannerCursor(), errorReporter);
-		var parser = new Parser(new ParserCursor(), errorReporter);
-		var writer = new TestOutputWriter();
-		var interpreter = new Interpreter(writer, errorReporter);
-
-		var tokens = scanner.ScanTokens(sourceText);
-		var stmts = parser.Parse(tokens);
+		var tokens = fixture.Scanner.ScanTokens(sourceText);
+		var stmts = fixture.Parser.Parse(tokens);
 		Assert.NotNull(stmts);
-		interpreter.Interpret(stmts);
-		Assert.Equal("17", writer.Lines[0]);
+		fixture.Interpreter.Interpret(stmts);
+		Assert.Equal("17", fixture.Writer.Lines[0]);
 	}
 
 	[Fact]
 	public void ExpressionStatementShouldOutputResult()
 	{
+		var fixture = new TestFixture();
+
 		var sourceText = "3*12-5;";
 
-		var errorReporter = new TestErrorReporter();
-		var scanner = new Scanner(new ScannerCursor(), errorReporter);
-		var parser = new Parser(new ParserCursor(), errorReporter);
-		var writer = new TestOutputWriter();
-		var interpreter = new Interpreter(writer, errorReporter);
-
-		var tokens = scanner.ScanTokens(sourceText);
-		var stmts = parser.Parse(tokens);
+		var tokens = fixture.Scanner.ScanTokens(sourceText);
+		var stmts = fixture.Parser.Parse(tokens);
 		Assert.NotNull(stmts);
-		interpreter.Interpret(stmts);
-		Assert.IsType<double>(interpreter.LastResult);
-		Assert.Equal(31, Convert.ToDouble(interpreter.LastResult));
+		fixture.Interpreter.Interpret(stmts);
+		Assert.IsType<double>(fixture.Interpreter.LastResult);
+		Assert.Equal(31, Convert.ToDouble(fixture.Interpreter.LastResult));
 	}
 
 	[Fact]
@@ -294,27 +250,23 @@ public class InterpreterTests
 	{
 		var sourceText = "3*12-5;";
 
-		var errorReporter = new TestErrorReporter();
-		var scanner = new Scanner(new ScannerCursor(), errorReporter);
-		var parser = new Parser(new ParserCursor(), errorReporter);
-		var writer = new TestOutputWriter();
-		var interpreter = new Interpreter(writer, errorReporter);
+		var fixture = new TestFixture();
 
-		var tokens = scanner.ScanTokens(sourceText);
-		var stmts = parser.Parse(tokens);
+		var tokens = fixture.Scanner.ScanTokens(sourceText);
+		var stmts = fixture.Parser.Parse(tokens);
 		Assert.NotNull(stmts);
-		interpreter.Interpret(stmts);
-		Assert.IsType<double>(interpreter.LastResult);
-		Assert.Equal(31, Convert.ToDouble(interpreter.LastResult));
+		fixture.Interpreter.Interpret(stmts);
+		Assert.IsType<double>(fixture.Interpreter.LastResult);
+		Assert.Equal(31, Convert.ToDouble(fixture.Interpreter.LastResult));
 
 		sourceText = "_;";
 
-		tokens = scanner.ScanTokens(sourceText);
-		stmts = parser.Parse(tokens);
+		tokens = fixture.Scanner.ScanTokens(sourceText);
+		stmts = fixture.Parser.Parse(tokens);
 		Assert.NotNull(stmts);
-		interpreter.Interpret(stmts);
-		Assert.IsType<double>(interpreter.LastResult);
-		Assert.Equal(31, Convert.ToDouble(interpreter.LastResult));
+		fixture.Interpreter.Interpret(stmts);
+		Assert.IsType<double>(fixture.Interpreter.LastResult);
+		Assert.Equal(31, Convert.ToDouble(fixture.Interpreter.LastResult));
 	}
 
 	[Fact]
@@ -327,17 +279,42 @@ public class InterpreterTests
 			3*12-5
 		";
 
-		var errorReporter = new TestErrorReporter();
-		var scanner = new Scanner(new ScannerCursor(), errorReporter);
-		var parser = new Parser(new ParserCursor(), errorReporter);
-		var writer = new TestOutputWriter();
-		var interpreter = new Interpreter(writer, errorReporter);
+		var fixture = new TestFixture();
 
-		var tokens = scanner.ScanTokens(sourceText);
-		var stmts = parser.Parse(tokens);
+		var tokens = fixture.Scanner.ScanTokens(sourceText);
+		var stmts = fixture.Parser.Parse(tokens);
 		Assert.NotNull(stmts);
-		interpreter.Interpret(stmts);
-		Assert.IsType<double>(interpreter.LastResult);
-		Assert.Equal(31, Convert.ToDouble(interpreter.LastResult));
+		fixture.Interpreter.Interpret(stmts);
+		Assert.IsType<double>(fixture.Interpreter.LastResult);
+		Assert.Equal(31, Convert.ToDouble(fixture.Interpreter.LastResult));
+	}
+
+	[Fact]
+	public void CanInterpretTernaryExpressions()
+	{
+		// Given
+		var fixture = new TestFixture();
+
+		// When
+		var sourceText = "(10 > 5) ? \"hello\" : \"hola\"";
+
+		// Then
+		var tokens = fixture.Scanner.ScanTokens(sourceText);
+		var stmts = fixture.Parser.Parse(tokens);
+		Assert.NotNull(stmts);
+		fixture.Interpreter.Interpret(stmts);
+		Assert.IsType<string>(fixture.Interpreter.LastResult);
+		Assert.Equal("hello", Convert.ToString(fixture.Interpreter.LastResult));
+
+		// When
+		sourceText = "(10 < 5) ? \"hello\" : \"hola\"";
+
+		// Then
+		tokens = fixture.Scanner.ScanTokens(sourceText);
+		stmts = fixture.Parser.Parse(tokens);
+		Assert.NotNull(stmts);
+		fixture.Interpreter.Interpret(stmts);
+		Assert.IsType<string>(fixture.Interpreter.LastResult);
+		Assert.Equal("hola", Convert.ToString(fixture.Interpreter.LastResult));
 	}
 }

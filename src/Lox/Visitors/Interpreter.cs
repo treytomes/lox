@@ -1,7 +1,6 @@
 using Lox.Exceptions;
 using Lox.Expressions;
 using Lox.Reporting;
-using Lox.Statements;
 
 namespace Lox.Visitors;
 
@@ -63,7 +62,16 @@ public class Interpreter : IInterpreter
 
 	private void Execute(Stmt stmt)
 	{
-		stmt.Accept(this);
+		var _ = stmt switch
+		{
+			BlockStmt s => VisitBlockStmt(s),
+			ExpressionStmt s => VisitExpressionStmt(s),
+			IfStmt s => VisitIfStmt(s),
+			PrintStmt s => VisitPrintStmt(s),
+			VarStmt s => VisitVarStmt(s),
+			WhileStmt s => VisitWhileStmt(s),
+			_ => throw new NotImplementedException($"Statement type {stmt.GetType()} not implemented")
+		};
 	}
 
 	private void ExecuteBlock(IList<Stmt> statements, Environment environment)
@@ -85,28 +93,30 @@ public class Interpreter : IInterpreter
 
 	#region Statement Visitors
 
-	public void VisitBlockStmt(BlockStmt stmt)
+	public Unit VisitBlockStmt(BlockStmt stmt)
 	{
 		ExecuteBlock(stmt.Statements, new Environment(CurrentEnvironment));
 		LastResult = null;
+		return default;
 	}
 
-	public void VisitClassStmt(ClassStmt stmt)
+	public Unit VisitClassStmt(ClassStmt stmt)
 	{
 		throw new NotImplementedException();
 	}
 
-	public void VisitExpressionStmt(ExpressionStmt stmt)
+	public Unit VisitExpressionStmt(ExpressionStmt stmt)
 	{
 		LastResult = Evaluate(stmt.Expression);
+		return default;
 	}
 
-	public void VisitFunctionStmt(FunctionStmt stmt)
+	public Unit VisitFunctionStmt(FunctionStmt stmt)
 	{
 		throw new NotImplementedException();
 	}
 
-	public void VisitIfStmt(IfStmt stmt)
+	public Unit VisitIfStmt(IfStmt stmt)
 	{
 		if (Evaluate(stmt.Condition).IsTruthy())
 		{
@@ -117,21 +127,23 @@ public class Interpreter : IInterpreter
 			Execute(stmt.ElseBranch);
 		}
 		LastResult = null;
+		return default;
 	}
 
-	public void VisitPrintStmt(PrintStmt stmt)
+	public Unit VisitPrintStmt(PrintStmt stmt)
 	{
 		var value = Evaluate(stmt.Expression);
 		_console.WriteLine(value.Stringify(true));
 		LastResult = null;
+		return default;
 	}
 
-	public void VisitReturnStmt(ReturnStmt stmt)
+	public Unit VisitReturnStmt(ReturnStmt stmt)
 	{
 		throw new NotImplementedException();
 	}
 
-	public void VisitVarStmt(VarStmt stmt)
+	public Unit VisitVarStmt(VarStmt stmt)
 	{
 		object? value = null;
 		if (stmt.Initializer != null)
@@ -141,15 +153,17 @@ public class Interpreter : IInterpreter
 
 		CurrentEnvironment.Define(stmt.Name.Lexeme, value);
 		LastResult = null;
+		return default;
 	}
 
-	public void VisitWhileStmt(WhileStmt stmt)
+	public Unit VisitWhileStmt(WhileStmt stmt)
 	{
 		while (Evaluate(stmt.Condition).IsTruthy())
 		{
 			Execute(stmt.Body);
 		}
 		LastResult = null;
+		return default;
 	}
 
 	#endregion

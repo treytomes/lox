@@ -1,8 +1,6 @@
 using Lox.Expressions;
 using Lox.Parsing;
 using Lox.Scanning;
-using Lox.Statements;
-using Microsoft.VisualBasic;
 
 namespace Lox.Test;
 

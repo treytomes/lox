@@ -1,6 +1,6 @@
 using Lox.Reporting;
 
-namespace Lox.Text;
+namespace Lox.Test;
 
 public class TestOutputWriter : IOutputWriter
 {

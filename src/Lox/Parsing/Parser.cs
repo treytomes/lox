@@ -217,7 +217,7 @@ public class Parser : IParser
 
 	private Expr Assignment()
 	{
-		var expr = Or();
+		var expr = Ternary();
 
 		if (_cursor.Match(TokenType.EQUAL))
 		{
@@ -234,6 +234,24 @@ public class Parser : IParser
 		}
 
 		return expr;
+	}
+
+	private Expr Ternary()
+	{
+		var cond = Or();
+
+		if (_cursor.Match(TokenType.QUESTION_MARK))
+		{
+			var ifTrue = Or();
+
+			Consume(TokenType.COLON, "Expected a ':'.");
+
+			var ifFalse = Or();
+
+			return new IfExpr(cond, ifTrue, ifFalse);
+		}
+
+		return cond;
 	}
 
 	private Expr Or()

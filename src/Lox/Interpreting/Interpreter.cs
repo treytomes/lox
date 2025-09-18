@@ -48,6 +48,7 @@ public class Interpreter : IInterpreter
 			CallExpr e => VisitCallExpr(e),
 			GetExpr e => VisitGetExpr(e),
 			GroupingExpr e => VisitGroupingExpr(e),
+			IfExpr e => VisitIfExpr(e),
 			ListExpr e => VisitListExpr(e),
 			LiteralExpr e => VisitLiteralExpr(e),
 			LogicalExpr e => VisitLogicalExpr(e),
@@ -263,6 +264,16 @@ public class Interpreter : IInterpreter
 	public object? VisitGroupingExpr(GroupingExpr expr)
 	{
 		return Evaluate(expr.Expression);
+	}
+
+	public object? VisitIfExpr(IfExpr expr)
+	{
+		var condResult = Evaluate(expr.Condition);
+		if (condResult.IsTruthy())
+		{
+			return Evaluate(expr.IfTrue);
+		}
+		return Evaluate(expr.IfFalse);
 	}
 
 	public object? VisitListExpr(ListExpr expr)

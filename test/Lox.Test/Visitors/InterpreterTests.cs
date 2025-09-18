@@ -303,6 +303,9 @@ public class InterpreterTests
 		var stmts = fixture.Parser.Parse(tokens);
 		Assert.NotNull(stmts);
 		fixture.Interpreter.Interpret(stmts);
+		Assert.Empty(fixture.ErrorReporter.Errors);
+		Assert.False(fixture.ErrorReporter.HadError);
+		Assert.False(fixture.ErrorReporter.HadRuntimeError);
 		Assert.IsType<string>(fixture.Interpreter.LastResult);
 		Assert.Equal("hello", Convert.ToString(fixture.Interpreter.LastResult));
 

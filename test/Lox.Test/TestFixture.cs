@@ -12,7 +12,7 @@ class TestFixture
 {
 	#region Fields
 
-	private readonly IErrorReporter _errorReporter = new TestErrorReporter();
+	private readonly TestErrorReporter _errorReporter = new TestErrorReporter();
 	private readonly IScannerCursor _scannerCursor = new ScannerCursor();
 	private readonly IParserCursor _parserCursor = new ParserCursor();
 	private readonly TestOutputWriter _writer = new();
@@ -35,7 +35,7 @@ class TestFixture
 
 	#region Properties
 
-	public IErrorReporter ErrorReporter => _errorReporter;
+	public TestErrorReporter ErrorReporter => _errorReporter;
 	public IScanner Scanner => _scanner;
 	public IParser Parser => _parser;
 	public TestOutputWriter Writer => _writer;

@@ -11,7 +11,9 @@ public class Scanner : IScanner
 	private static readonly ReadOnlyDictionary<string, TokenType> _keywords = new(new Dictionary<string, TokenType>()
 	{
 		{ "and", TokenType.AND },
+		{ "break", TokenType.BREAK },
 		{ "class", TokenType.CLASS },
+		{ "continue", TokenType.CONTINUE },
 		{ "else", TokenType.ELSE },
 		{ "false", TokenType.FALSE },
 		{ "for", TokenType.FOR },

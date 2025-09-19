@@ -1,4 +1,4 @@
-namespace Lox.Test.Visitors;
+namespace Lox.Test.Interpreting;
 
 public class InterpreterTests
 {
@@ -319,5 +319,59 @@ public class InterpreterTests
 		fixture.Interpreter.Interpret(stmts);
 		Assert.IsType<string>(fixture.Interpreter.LastResult);
 		Assert.Equal("hola", Convert.ToString(fixture.Interpreter.LastResult));
+	}
+
+	[Fact]
+	public void CanBreakWhileLoops()
+	{
+		// Given
+		var fixture = new TestFixture();
+
+		// When
+		var sourceText = @"
+			var a = 0;
+			while (a < 100) {
+				if (a > 15) {
+					break;
+				}
+				print a;
+				a = a + 1;
+			}
+		";
+
+		// Then
+		var tokens = fixture.Scanner.ScanTokens(sourceText);
+		var stmts = fixture.Parser.Parse(tokens);
+		Assert.NotNull(stmts);
+
+		fixture.Interpreter.Interpret(stmts);
+		Assert.Equal("15", fixture.Writer.Lines.Last());
+	}
+
+	[Fact]
+	public void CanContinueWhileLoops()
+	{
+		// Given
+		var fixture = new TestFixture();
+
+		// When
+		var sourceText = @"
+			var a = 0;
+			while (a < 100) {
+				a = a + 1;
+				if (a < 40) {
+					continue;
+				}
+				print a;
+			}
+		";
+
+		// Then
+		var tokens = fixture.Scanner.ScanTokens(sourceText);
+		var stmts = fixture.Parser.Parse(tokens);
+		Assert.NotNull(stmts);
+
+		fixture.Interpreter.Interpret(stmts);
+		Assert.Equal("40", fixture.Writer.Lines.First());
 	}
 }

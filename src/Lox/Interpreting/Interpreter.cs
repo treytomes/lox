@@ -67,7 +67,16 @@ public class Interpreter : IInterpreter
 		{
 			foreach (var statement in statements)
 			{
-				Execute(statement);
+				var flow = Execute(statement);
+				switch (flow)
+				{
+					case ControlFlow.Break:
+						throw new RuntimeException(null, "Break outside of loop.");
+					case ControlFlow.Continue:
+						throw new RuntimeException(null, "Continue outside of loop.");
+					default:
+						continue;
+				}
 			}
 		}
 		else
@@ -76,11 +85,13 @@ public class Interpreter : IInterpreter
 		}
 	}
 
-	private void Execute(Stmt stmt)
+	private ControlFlow Execute(Stmt stmt)
 	{
-		var _ = stmt switch
+		return stmt switch
 		{
 			BlockStmt s => VisitBlockStmt(s),
+			BreakStmt s => VisitBreakStmt(s),
+			ContinueStmt s => VisitContinueStmt(s),
 			ExpressionStmt s => VisitExpressionStmt(s),
 			IfStmt s => VisitIfStmt(s),
 			PrintStmt s => VisitPrintStmt(s),
@@ -90,7 +101,7 @@ public class Interpreter : IInterpreter
 		};
 	}
 
-	private void ExecuteBlock(IList<Stmt> statements, Environment environment)
+	private ControlFlow ExecuteBlock(IList<Stmt> statements, Environment environment)
 	{
 		try
 		{
@@ -98,68 +109,91 @@ public class Interpreter : IInterpreter
 
 			foreach (var statement in statements)
 			{
-				Execute(statement);
+				var flow = Execute(statement);
+				switch (flow)
+				{
+					case ControlFlow.Break:
+					case ControlFlow.Continue:
+						// Console.WriteLine($"flow: {flow}");
+						return flow;
+					case ControlFlow.Next:
+					default:
+						continue;
+				}
 			}
 		}
 		finally
 		{
 			_environments.Pop();
 		}
+
+		return ControlFlow.NextFlow;
 	}
 
 	#region Statement Visitors
 
-	public Unit VisitBlockStmt(BlockStmt stmt)
+	public ControlFlow VisitBlockStmt(BlockStmt stmt)
 	{
-		ExecuteBlock(stmt.Statements, new Environment(CurrentEnvironment));
+		var flow = ExecuteBlock(stmt.Statements, new Environment(CurrentEnvironment));
 		LastResult = null;
-		return default;
+		return flow;
 	}
 
-	public Unit VisitClassStmt(ClassStmt stmt)
+	public ControlFlow VisitBreakStmt(BreakStmt stmt)
+	{
+		return ControlFlow.BreakFlow;
+	}
+
+	public ControlFlow VisitClassStmt(ClassStmt stmt)
 	{
 		throw new NotImplementedException();
 	}
 
-	public Unit VisitExpressionStmt(ExpressionStmt stmt)
+	public ControlFlow VisitContinueStmt(ContinueStmt stmt)
+	{
+		return ControlFlow.ContinueFlow;
+	}
+
+	public ControlFlow VisitExpressionStmt(ExpressionStmt stmt)
 	{
 		LastResult = Evaluate(stmt.Expression);
-		return default;
+		return ControlFlow.NextFlow;
 	}
 
-	public Unit VisitFunctionStmt(FunctionStmt stmt)
+	public ControlFlow VisitFunctionStmt(FunctionStmt stmt)
 	{
 		throw new NotImplementedException();
 	}
 
-	public Unit VisitIfStmt(IfStmt stmt)
+	public ControlFlow VisitIfStmt(IfStmt stmt)
 	{
+		var flow = ControlFlow.NextFlow;
 		if (Evaluate(stmt.Condition).IsTruthy())
 		{
-			Execute(stmt.ThenBranch);
+			flow = Execute(stmt.ThenBranch);
 		}
 		else if (stmt.ElseBranch != null)
 		{
-			Execute(stmt.ElseBranch);
+			flow = Execute(stmt.ElseBranch);
 		}
 		LastResult = null;
-		return default;
+		return flow;
 	}
 
-	public Unit VisitPrintStmt(PrintStmt stmt)
+	public ControlFlow VisitPrintStmt(PrintStmt stmt)
 	{
 		var value = Evaluate(stmt.Expression);
 		_console.WriteLine(value.Stringify(true));
 		LastResult = null;
-		return default;
+		return ControlFlow.NextFlow;
 	}
 
-	public Unit VisitReturnStmt(ReturnStmt stmt)
+	public ControlFlow VisitReturnStmt(ReturnStmt stmt)
 	{
 		throw new NotImplementedException();
 	}
 
-	public Unit VisitVarStmt(VarStmt stmt)
+	public ControlFlow VisitVarStmt(VarStmt stmt)
 	{
 		object? value = null;
 		if (stmt.Initializer != null)
@@ -169,17 +203,26 @@ public class Interpreter : IInterpreter
 
 		CurrentEnvironment.Define(stmt.Name.Lexeme, value);
 		LastResult = null;
-		return default;
+		return ControlFlow.NextFlow;
 	}
 
-	public Unit VisitWhileStmt(WhileStmt stmt)
+	public ControlFlow VisitWhileStmt(WhileStmt stmt)
 	{
 		while (Evaluate(stmt.Condition).IsTruthy())
 		{
-			Execute(stmt.Body);
+			var flow = Execute(stmt.Body);
+			if (flow is ControlFlow.Break)
+			{
+				break;
+			}
+			else if (flow is ControlFlow.Continue)
+			{
+				// The actual "continue" effect is handled in the Block processor.
+				continue;
+			}
 		}
 		LastResult = null;
-		return default;
+		return ControlFlow.NextFlow;
 	}
 
 	#endregion

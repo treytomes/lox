@@ -28,15 +28,8 @@ public class ConsoleErrorReporter : IErrorReporter
 
 	public void RuntimeError(RuntimeException error)
 	{
-		if (error.Token != null)
-		{
-			var line = error.Token.Line;
-			Console.WriteLine($"{error.Message}\n[line {line}]");
-		}
-		else
-		{
-			Console.WriteLine(error.Message);
-		}
+		var line = error.Token.Line;
+		Console.WriteLine($"{error.Message}\n[line {line}]");
 		_hadRuntimeError = true;
 	}
 

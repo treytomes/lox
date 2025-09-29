@@ -5,6 +5,12 @@ namespace Lox.Parsing;
 
 public class Parser : IParser
 {
+	#region Constants
+
+	private const int MAX_ARGUMENTS = 255;
+
+	#endregion
+
 	#region Fields
 
 	private readonly IErrorReporter _errorReporter;
@@ -178,13 +184,13 @@ public class Parser : IParser
 	private Stmt BreakStatement()
 	{
 		Consume([TokenType.SEMICOLON, TokenType.EOF], "Expect ';' after value.");
-		return new BreakStmt();
+		return new BreakStmt(_cursor.Previous());
 	}
 
 	private Stmt ContinueStatement()
 	{
 		Consume([TokenType.SEMICOLON, TokenType.EOF], "Expect ';' after value.");
-		return new ContinueStmt();
+		return new ContinueStmt(_cursor.Previous());
 	}
 
 	private List<Stmt> Block()
@@ -361,7 +367,46 @@ public class Parser : IParser
 			return new UnaryExpr(op, right);
 		}
 
-		return Primary();
+		return Call();
+	}
+
+	private Expr Call()
+	{
+		var expr = Primary();
+
+		while (true)
+		{
+			if (_cursor.Match(TokenType.LEFT_PAREN))
+			{
+				expr = FinishCall(expr);
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		return expr;
+	}
+
+	private Expr FinishCall(Expr callee)
+	{
+		var arguments = new List<Expr>();
+		if (!_cursor.Check(TokenType.RIGHT_PAREN))
+		{
+			do
+			{
+				if (arguments.Count >= MAX_ARGUMENTS)
+				{
+					_errorReporter.Error(_cursor.Peek(), "Can't have more than 255 arguments.");
+				}
+				arguments.Add(Expression());
+			} while (_cursor.Match(TokenType.COMMA));
+		}
+
+		var paren = Consume(TokenType.RIGHT_PAREN, "Expect ')' after arguments.");
+
+		return new CallExpr(callee, paren, arguments);
 	}
 
 	private Expr Primary()

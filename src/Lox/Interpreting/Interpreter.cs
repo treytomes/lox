@@ -68,14 +68,13 @@ public class Interpreter : IInterpreter
 			foreach (var statement in statements)
 			{
 				var flow = Execute(statement);
-				switch (flow)
+				if (flow is ControlFlow.Break breakFlow)
 				{
-					case ControlFlow.Break:
-						throw new RuntimeException(null, "Break outside of loop.");
-					case ControlFlow.Continue:
-						throw new RuntimeException(null, "Continue outside of loop.");
-					default:
-						continue;
+					throw new RuntimeException(breakFlow.Keyword, "Break outside of loop.");
+				}
+				else if (flow is ControlFlow.Continue contFlow)
+				{
+					throw new RuntimeException(contFlow.Keyword, "Continue outside of loop.");
 				}
 			}
 		}
@@ -141,7 +140,8 @@ public class Interpreter : IInterpreter
 
 	public ControlFlow VisitBreakStmt(BreakStmt stmt)
 	{
-		return ControlFlow.BreakFlow;
+		LastResult = null;
+		return new ControlFlow.Break(stmt.Keyword);
 	}
 
 	public ControlFlow VisitClassStmt(ClassStmt stmt)
@@ -151,7 +151,8 @@ public class Interpreter : IInterpreter
 
 	public ControlFlow VisitContinueStmt(ContinueStmt stmt)
 	{
-		return ControlFlow.ContinueFlow;
+		LastResult = null;
+		return new ControlFlow.Continue(stmt.Keyword);
 	}
 
 	public ControlFlow VisitExpressionStmt(ExpressionStmt stmt)
@@ -296,7 +297,22 @@ public class Interpreter : IInterpreter
 
 	public object? VisitCallExpr(CallExpr expr)
 	{
-		throw new NotImplementedException();
+		var callee = Evaluate(expr.Callee);
+
+		var arguments = new List<object?>();
+		foreach (var argument in expr.Arguments)
+		{
+			arguments.Add(Evaluate(argument));
+		}
+
+		if (callee is ILoxCallable function)
+		{
+			return function.Call(this, arguments);
+		}
+		else
+		{
+			throw new RuntimeException(expr.Paren, "Expected a function.");
+		}
 	}
 
 	public object? VisitGetExpr(GetExpr expr)
